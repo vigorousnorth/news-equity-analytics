@@ -1,0 +1,21 @@
+{
+  "name": "newsequityproject",
+  "version": "0.0.0",
+  "description": "Content analytics for news websites.",
+  "main": "feedparser.js",
+  "dependencies": {
+    "feedparser": "^2.2.4",
+    "request": "^2.83.0",
+    "mysql": "^2.15.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository":"https://github.com/vigorousnorth/news-equity-analytics.git",
+  "keywords": [
+    "journalism"
+  ],
+  "author": "Christian MilNeil",
+  "license": "MIT"
+}
