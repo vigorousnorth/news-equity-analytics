@@ -64,21 +64,34 @@ start(function(err, topics) {
 	    console.log('Got article: %s', item.title );
 	    // console.log(item.summary);	// subhed
 
-	    var hed = item.title;
-	    var subhed = item.summary;
-	    var story = item.description; // story content
+	    var hed = item.title ? item.title : '';
+	    var subhed = item.summary ? item.summary : '';
+	    var story = item.description ? item.description : ''; // story content
+	    
 	    // we can score the 'strength' of each topic mention by scoring it
 	    // according to how high up in each item it is
+	    story_l = story? story.split(' ').length : 0;
+	    subhed_l = subhed ? subhed.split(' ').length : 0;
+	    hed_l = hed ? hed.split(' ').length : 0;
+	    
+	    var itemObj = { 
+	    	'permalink' : item.permalink,
+	    	'pubdate' : item.pubdate,
+	    	'hed_index' : [0,hed_l],
+	    	'subhed_index' : [hed_l,subhed_l],
+	    	'body_index' : [(hed_l + subhed_l), (hed_l + subhed_l + story_l)],
+			'searchstring' : hed + "|" + subhed + "|" + story
+		}
 	    
 	    // In here, call the "find" function from find.js on each item.
 	    topics.map(function(v,i,a) {
 	    	if (v.not_preceded_by || v.not_followed_by) {
-	    		itemsearch(hed).qualifiedFind(v.topic, v.not_preceded_by, v.not_followed_by, function(error, results) {
+	    		itemsearch(itemObj.searchstring).qualifiedFind(v.topic, v.not_preceded_by, v.not_followed_by, function(error, results) {
 	    			if (results[0]) { console.log(results); }
 	    		})
 	    	}
 	    	else {
-	    		itemsearch(hed).find(v.topic, function(error, results) {
+	    		itemsearch(itemObj.searchstring).find(v.topic, function(error, results) {
 	    			if (results[0]) { console.log(results); }
 	    		});
 	    	}

@@ -1,5 +1,3 @@
-var teststring = "In Portland but not South Portland or Portland West or bash Portland or Westbrook."
-
 var ready = false;
 var config = require('./config'); 
 	// contains target feed, target RSS tags and analytics terms
@@ -56,9 +54,9 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			item.split(' ').map( function( value, index ) {
+			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
 		          if ( value.match( new RegExp( regex, 'g' ) ) ) {
-		            results.push( { index: index + 1, value: value } );
+		            results.push( { topic: regex, index: index + 1, value: value } );
 		          }
 		    });
 
@@ -74,16 +72,50 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			item.split(' ').map( function( value, index, array ) {
-		          if ( value.match( new RegExp( regex, 'g' ) ) && array[index-1] != pre && array[index+1] != post ) {
-		            results.push( { index: index + 1, value: value } );
-		          }
+			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
+				
+				if ( value.match( new RegExp( regex, 'g' ) ) ) {
+					console.log(value);
+					// Possible match in this sentence. Now check for the pre/post conditions: 
+					var sentence = value.split(' ');
+					if (sentence[0] == ' ') {sentence.pop();}
+					var reg_array = regex.split(' ');
+					
+					// console.log('Possible match here!');
+
+					sentence.map(function (v,i,a) {
+
+						// console.log("v: " + v);
+						if (v.match( new RegExp( reg_array[0], 'g') ) ) {
+							// console.log("Getting closer! Found " + v);
+							// console.log( a[(i-1)]);
+							if ( !reg_array[1] || (a[i+1]).match( new RegExp( reg_array[1] , 'g') ) ) {
+								// Continue; the next word in the sentence matches the next word in the search expression
+								if ( ( pre && a[(i-1)] && (a[(i-1)]).match( new RegExp( pre , 'gi') ) ) ||
+									 ( post && a[(i+1)] && (a[(i+1)]).match( new RegExp( post , 'gi') ) )
+								) {
+									// console.log("Reject this one: " + a[(i-1)] + a[(i)] + a[(i+1)] );
+									
+								} else {
+									results.push( { topic: regex, index: index + 1, value: value } );
+								}
+							}
+						}
+					}) 									
+				}
 		    });
 
 		    cb(null, results);
 		}		
 	}
 }
+
+var teststring = "In South Portland. And also not Portland West or bash Portland. But not South Portland, or Westbrook. Not South Portland. But not anti-Portland. But sure in South Portland."
+
+// console.log( teststring.match( new RegExp("South Portland", 'g')));
+itemsearch(teststring).find('South Portland', function(err, results) {
+	console.log(results);
+})
 
 module.exports.itemsearch = itemsearch;
 module.exports.parseTopics = parseTopics;
