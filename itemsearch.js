@@ -14,7 +14,7 @@ function parseTopics(callback) {
 				'not_preceded_by' : '',
 				'not_followed_by' : ''  
 				// Add additional functionality here later, to allow users additional flexibility in defining/refining search terms
-				// (e.g., search for 'Baldwin' but not 'Alec Baldwin')
+				// (e.g., search for 'Guinness' but not 'Alec Guinness')
 			});
 	});
 
@@ -75,7 +75,7 @@ var itemsearch = function(item) {
 			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
 				
 				if ( value.match( new RegExp( regex, 'g' ) ) ) {
-					console.log(value);
+					
 					// Possible match in this sentence. Now check for the pre/post conditions: 
 					var sentence = value.split(' ');
 					if (sentence[0] == ' ') {sentence.pop();}
@@ -87,9 +87,9 @@ var itemsearch = function(item) {
 
 						// console.log("v: " + v);
 						if (v.match( new RegExp( reg_array[0], 'g') ) ) {
-							// console.log("Getting closer! Found " + v);
-							// console.log( a[(i-1)]);
+							
 							if ( !reg_array[1] || (a[i+1]).match( new RegExp( reg_array[1] , 'g') ) ) {
+								
 								// Continue; the next word in the sentence matches the next word in the search expression
 								if ( ( pre && a[(i-1)] && (a[(i-1)]).match( new RegExp( pre , 'gi') ) ) ||
 									 ( post && a[(i+1)] && (a[(i+1)]).match( new RegExp( post , 'gi') ) )
@@ -110,12 +110,12 @@ var itemsearch = function(item) {
 	}
 }
 
-var teststring = "In South Portland. And also not Portland West or bash Portland. But not South Portland, or Westbrook. Not South Portland. But not anti-Portland. But sure in South Portland."
+// var teststring = "In South Portland. And also not Portland West or bash Portland. But not South Portland, or Westbrook. Not South Portland. But not anti-Portland. But sure in South Portland."
 
 // console.log( teststring.match( new RegExp("South Portland", 'g')));
-itemsearch(teststring).find('South Portland', function(err, results) {
-	console.log(results);
-})
+// itemsearch(teststring).find('South Portland', function(err, results) {
+// 	console.log(results);
+// })
 
 module.exports.itemsearch = itemsearch;
 module.exports.parseTopics = parseTopics;

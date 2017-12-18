@@ -14,8 +14,12 @@ module.exports = {
 	"Naples","New Gloucester","North Yarmouth","West Portland","Pownal",
 	"Raymond","Scarborough","Sebago","Standish","Standish Center","Windham",
 	"Yarmouth"
-	]
+	],
+	sql_host: "127.0.0.1",
+  sql_user: "root",
+  sql_password: "Portland1"
 }
+
 // To do: 
 // 1. Define feed property as an array to search multiple sites or sections
 
