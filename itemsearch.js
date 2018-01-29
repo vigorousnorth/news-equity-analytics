@@ -2,17 +2,37 @@ var ready = false;
 var config = require('./config'); 
 	// contains target feed, target RSS tags and analytics terms
 
-var topics = config.topics;
+var Database = require('./sqlConnection');
 
-function parseTopics(callback) {
+var topics;
+
+function fetchTopics(callback) {
+
+	var q = "SELECT Name FROM places;"
+
+	var db = new Database; 
+
+	db.query(q)
+		.then( rows => {
+			topics = rows.map( function(v) {
+				return v.Name;
+			});
+		})
+		.then( rows =>  db.close() )
+		.then( function() { callback( null, topics ) });
+
+}
+
+
+function parseTopics(topics) {
 
 	var topic_searchterms = [];
 
 	topics.map(function(v,i,a) {
 		topic_searchterms.push({
 				'topic' : v,
-				'not_preceded_by' : '',
-				'not_followed_by' : ''  
+				'not_preceded_by' : null,
+				'not_followed_by' : null  
 				// Add additional functionality here later, to allow users additional flexibility in defining/refining search terms
 				// (e.g., search for 'Guinness' but not 'Alec Guinness')
 			});
@@ -40,13 +60,13 @@ function parseTopics(callback) {
 		ready = true;
 	};
 
-	callback(null, topic_searchterms);
+	return topic_searchterms;
 
 }
 
 var itemsearch = function(item) {
 	return {
-		find: function( regex, cb ) {
+		easyFind: function( regex, cb ) {
 			if ( !regex || {}.toString.call( regex ) !== "[object String]" ) {
 				callback( new TypeError( "You must provide a regular expression to search with." ) );
 				return;
@@ -118,5 +138,7 @@ var itemsearch = function(item) {
 // })
 
 module.exports.itemsearch = itemsearch;
+
+module.exports.fetchTopics = fetchTopics;
 module.exports.parseTopics = parseTopics;
  
