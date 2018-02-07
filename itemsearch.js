@@ -138,7 +138,6 @@ var itemsearch = function(item) {
 // })
 
 module.exports.itemsearch = itemsearch;
-
 module.exports.fetchTopics = fetchTopics;
 module.exports.parseTopics = parseTopics;
  

@@ -1,5 +1,5 @@
 module.exports = {
-	feed : 'https://www.pressherald.com/category/news/feed/',
+	feed : 'https://www.pressherald.com/mailchimp-feed/',
 	tags : [],
 	sql_host: "127.0.0.1",
   sql_user: "root",
