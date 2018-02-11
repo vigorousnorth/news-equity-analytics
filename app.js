@@ -5,7 +5,8 @@ const config = require('./config');
 	// contains definations for the target feed, target RSS tags, analytics terms, SQL connection
 
 const searchMod = require('./itemsearch');
-const sqlMod = require('./sqlConnection');
+
+const Database = require('./sqlConnection');
 
 const start = searchMod.fetchTopics;
 const itemsearch = searchMod.itemsearch;
@@ -15,12 +16,9 @@ const getFeed = rssMod.getFeed;
 
 var searchItems = [], storyItems = [];
 
-	// regular expression search functions are in here
-const connect = sqlMod.connect;
-
 var url = config.feed;
 
-console.log(url);
+// console.log(url);
 
 start(function(err, topics) {
 
@@ -37,75 +35,106 @@ start(function(err, topics) {
 
 	parseTheTopics(topics)
 		.then(function(response) {
-				console.log("Topics parsed.");
 				searchItems = response;
-				// console.log(searchItems[39]);
 			}, function(error) { 
 				console.log("The parseTheTopics promise has failed.", error); 
 			})
 		.then(function(response) {
-				return getFeed(url); // Promises the array of RSS items as the response.
+				return getFeed(url); 
+				// A promise that returns the array of RSS items when resolved.
 			})
-		.then(function(response) {
-				console.log("Success: got the feed.");
+		.then(function(feedItems) {
+				console.log("Got the feed.");
+				
+				var promiseArray = [];
 
-				storyItems = response; 
-
-			  searchStories(storyItems);			  
-
+				for (var i = feedItems.length - 1; i >= 0; i--) {
+					promiseArray[i] = new Promise(function(resolve, reject) {
+						resolve(insertArticle(1, feedItems[i]) );
+						// insertArticle is a promise that returns the article's SQL table ID on resolve
+						// nest the search functions inside this promise, so that each article
+						// is searched as it's added to the table
+					});
+				};
+				
+				return Promise.all(promiseArray).then( function(values) {
+				  return values; // an array of article IDs
+				}, error => { console.log("Failure in Promise.all()." + error); });
+			
 			}, function(error) {
 		  	console.error("The getFeed promise has failed.", error);
-			});
+			})
+		.then(function(response) {
+			console.log("Article IDs added: " + response);
+		}, function(error) {console.error("The insertArticle promise has failed.", error); });
+
+
+
+	function searchStory(item, topics) {
+		// search for the parsed topics in each story, then add those into the place_mentions table
+	  
+	  topics.map(function(v,j,a) {
+	  	if (v.not_preceded_by || v.not_followed_by) {
+	  		itemsearch(itemObj.searchstring).qualifiedFind(v.topic, v.not_preceded_by, v.not_followed_by, function(error, results) {
+	  			if (results[0]) { // console.log(results); 
+	  			}
+	  		})
+	  	}
+	  	else {
+	  		itemsearch(itemObj.searchstring).find(v.topic, function(error, results) {
+	  			if (results[0]) { // console.log(results); 
+	  			}
+	  		});
+	  	}
+	  })
+	}
 
 });
 
-function searchStories(storyArray) {
 
-	for (var i = storyArray.length - 1; i >= 0; i--) {
+function insertArticle(rss_id, itemObject) {
+
+	return new Promise(function(resolve, reject) {
+		
+		var headline = itemObject.title.replace(/'/g, "\\'");
+		var summary = itemObject.summary.replace(/'/g, "\\'")
+		var date = itemObject.date;
+
+		var datestr = date.toISOString().slice(0, 19).replace('T', ' ');
+		// console.log(datestr);
+
+		var q = "INSERT INTO articles (rss_source_id, date, headline, summary, url_slug) VALUES ('" 
+			+ rss_id + "','" + datestr + "','" + headline
+			+ "','" + summary + "','" + itemObject.link + "')";
+		
+		var article_id, db = new Database; 
+
+		db.query(q)
+			.then( rows => { 
+				// console.log(rows.insertId);
+				console.log("Successfully added " + headline + ", ID#" + rows.insertId + " to article table."); 
+				
+				// return the unique id for the article as the insertArticle promise's resolution
+				resolve(rows.insertId);  
+				
+			}, error => { console.error("The query promise has failed.", error); })
+			.then( rows =>  db.close() )
+			// .then( resolve(article_id) );
+		
+	});
+
+}
+
+
+
+function insertPlaceMention(place, article_id, relevance, context) {
 	
-		item = storyArray[i];
+	var q = "INSERT INTO place_mention (article_id, relevance_score, context, place_id) "
+	 + "VALUES ('" + article_id + "','" + relevance + "','" + context + "','" + place_id + "')";
 
-  	// This is the loop where RSS article items are processed and searched for insertion into our database.
-    
-    var hed = item.title ? item.title : '';
-    var subhed = item.summary ? item.summary : '';
-    var story = item.description ? item.description : ''; // story content
-    
-    // we can score the 'strength' of each topic mention by scoring it
-    // according to how high up in each item it is
-    story_l = story? story.split(' ').length : 0;
-    subhed_l = subhed ? subhed.split(' ').length : 0;
-    hed_l = hed ? hed.split(' ').length : 0;
-    
-    var itemObj = { 
-    	'permalink' : item.link,
-    	'pubdate' : item.pubdate,
-    	'hed_index' : [0,hed_l],
-    	'subhed_index' : [hed_l,subhed_l],
-    	'body_index' : [(hed_l + subhed_l), (hed_l + subhed_l + story_l)],
-    	'topics' : [],
-			'searchstring' : hed + "|" + subhed + "|" + story
-		}
-    
+	var db = new Database; 
 
-    console.log(i + "," + itemObj);
-
-    // In here, call the "itemsearch" function from itemsearch.js on each item.
-    topics.map(function(v,j,a) {
-    	if (v.not_preceded_by || v.not_followed_by) {
-    		itemsearch(itemObj.searchstring).qualifiedFind(v.topic, v.not_preceded_by, v.not_followed_by, function(error, results) {
-    			if (results[0]) { // console.log(results); 
-    			}
-    		})
-    	}
-    	else {
-    		itemsearch(itemObj.searchstring).find(v.topic, function(error, results) {
-    			if (results[0]) { // console.log(results); 
-    			}
-    		});
-    	}
-    })
-
-	}
-
+	db.query(q)
+		.then( rows => { db.close; })
+		.then( function() { callback( null ) });
 }
