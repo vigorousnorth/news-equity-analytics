@@ -8,14 +8,14 @@ var topics;
 
 function fetchTopics(callback) {
 
-	var q = "SELECT Name FROM places;"
+	var q = "SELECT id, Name FROM places;"
 
 	var db = new Database; 
 
 	db.query(q)
 		.then( rows => {
 			topics = rows.map( function(v) {
-				return v.Name;
+				return {'name': v.Name, "id": v.id};
 			});
 		})
 		.then( rows =>  db.close() )
@@ -30,7 +30,8 @@ function parseTopics(topics) {
 
 	topics.map(function(v,i,a) {
 		topic_searchterms.push({
-				'topic' : v,
+				'topic' : v.name,
+				'id' : v.id,
 				'not_preceded_by' : null,
 				'not_followed_by' : null  
 				// Add additional functionality here later, to allow users additional flexibility in defining/refining search terms
@@ -42,7 +43,7 @@ function parseTopics(topics) {
 		// Loop through the topics array for potentially ambiguous
 		// matches (e.g. to distinguish Portland from South Portland
 		// or Virginia from West Virginia
-		var split = topics[i].split(' ');
+		var split = (topics[i]['name']).split(' ');
 
 		//winnow down the potential duplicates
 
@@ -50,7 +51,7 @@ function parseTopics(topics) {
 			for (var j = split.length - 1; j >= 0; j--) {
 			 	// search for the string split[j] as a unique item 
 			 	// in the rest of the topics array, separated by commas
-			 	var ind = topics.indexOf(split[j]); 
+			 	var ind = findByAttr(topics, 'name', split[j]); 
 			 	if (ind > -1) {
 			 		topic_searchterms[ind].not_preceded_by = (j>0) ? split[j-1] : null;
 			 		topic_searchterms[ind].not_followed_by = (j<split.length) ? split[j+1] : null;
@@ -128,6 +129,15 @@ var itemsearch = function(item) {
 		    cb(null, results);
 		}		
 	}
+}
+
+function findByAttr(array, attr, value) {
+    for(var i = 0; i < array.length; i += 1) {
+        if(array[i][attr] === value) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 // var teststring = "In South Portland. And also not Portland West or bash Portland. But not South Portland, or Westbrook. Not South Portland. But not anti-Portland. But sure in South Portland."
