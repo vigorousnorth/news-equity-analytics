@@ -2,7 +2,7 @@
   "name": "newsequityproject",
   "version": "0.0.0",
   "description": "Content analytics for news websites.",
-  "main": "feedparser.js",
+  "main": "app.js",
   "dependencies": {
     "feedparser": "^2.2.4",
     "request": "^2.83.0",
