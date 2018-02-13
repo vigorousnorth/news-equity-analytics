@@ -18,8 +18,6 @@ var searchItems = [], storyItems = [];
 
 var url = config.feed;
 
-// console.log(url);
-
 start(function(err, topics) {
 
 	//the start function runs through the list of topics, 
@@ -48,18 +46,19 @@ start(function(err, topics) {
 				
 				var promiseArray = [];
 
-				for (var i = feedItems.length - 1; i >= 0; i--) {
-					promiseArray[i] = new Promise(function(resolve, reject) {
-						resolve(insertArticle(1, feedItems[i]) );
-						// insertArticle is a promise that returns the article's SQL table ID on resolve
+				for (var i = 0;  i < feedItems.length - 1;  i++) {
+					
+					var article = feedItems[i];
+
+					if (article) { promiseArray[i] = searchAndAdd(feedItems[i]); }
+
 						// nest the search functions inside this promise, so that each article
-						// is searched as it's added to the table
-					});
+						// is searched as it's added to the table	
 				};
 				
 				return Promise.all(promiseArray).then( function(values) {
 				  return values; // an array of article IDs
-				}, error => { console.log("Failure in Promise.all()." + error); });
+				}, error => { console.log("Failure in Promise.all()." + error ); });
 			
 			}, function(error) {
 		  	console.error("The getFeed promise has failed.", error);
@@ -69,27 +68,70 @@ start(function(err, topics) {
 		}, function(error) {console.error("The insertArticle promise has failed.", error); });
 
 
+	async function searchAndAdd(article) {
 
-	function searchStory(item, topics) {
-		// search for the parsed topics in each story, then add those into the place_mentions table
-	  
-	  topics.map(function(v,j,a) {
+		let resultsPromises = [];
+		
+		var searchstring = article.title.replace(/'/g, "\\'") + "|" 
+			+ article.summary.replace(/'/g, "\\'") + "|"
+			+ article.description;
+				
+		try { var article_id = await insertArticle(1, article); } catch (err) {console.log(err); }
+		// insertArticle is a promise that returns the article's SQL table ID on resolve
+		
+		var article_results = await searchStory(searchstring, searchItems); 
+		// returns an array of topic mentions from the article
+		// each result is an object of the form {topic: topic name, id: id from the place_mentions table
+		// index: position within the search string, and value: search result context }
+		
+		for (var j = article_results.length - 1; j >= 0; j--) {
+			var thisHit = article_results[j];
+			// console.log(thisHit);
+			try {
+				resultsPromises[j] = await insertPlaceMention(thisHit.place_id, article_id, thisHit.index, thisHit.value);
+				// insertPlaceMention is a promise that returns the row ID from the place_mentions table
+
+			} catch (err) {console.err(err); }
+		};
+
+		return Promise.all(resultsPromises).then( function(values) {
+					console.log(values.length + " entries added to place_mentions table from article " + article_id)
+				  return article_id; // an array of article IDs
+				}, error => { console.log("Failure in searchAndAdd Promise.all() " + error ); });
+			
+	}
+
+	function searchStory(searchstring, searchtopics) {
+		
+		//  searchtopics is an array of objects of the form {topic: topic name, id: SQL table id, not_preceded_by, not_followed_by}
+		var mentions = [];
+	  //	each mention is an object of the form {topic: topic, index: position within the search string, and value: search result context }
+	  searchtopics.map(function(v,j,a) {
 	  	if (v.not_preceded_by || v.not_followed_by) {
-	  		itemsearch(itemObj.searchstring).qualifiedFind(v.topic, v.not_preceded_by, v.not_followed_by, function(error, results) {
-	  			if (results[0]) { // console.log(results); 
+	  		itemsearch(searchstring).qualifiedFind(v.topic, v.not_preceded_by, v.not_followed_by, function(error, results) {
+	  			if (error) {console.log('qualifiedFind ' + error); }
+	  			if (results[0]) { 
+	  				results.map( val => { val.place_id = v.id; return val; });
+	  				// console.log(results); 
+	  				mentions = results;
 	  			}
 	  		})
 	  	}
 	  	else {
-	  		itemsearch(itemObj.searchstring).find(v.topic, function(error, results) {
-	  			if (results[0]) { // console.log(results); 
+	  		itemsearch(searchstring).easyFind(v.topic, function(error, results) {
+	  			if (error) { console.log('easyFind ' + error); }
+	  			else if (results[0]) { 
+	  				results.map( val => { val.place_id = v.id; return val; });
+	  				mentions = results;
 	  			}
 	  		});
 	  	}
 	  })
+	  // console.log(mentions);
+	  return mentions;
 	}
 
-});
+});  // end of start function
 
 
 function insertArticle(rss_id, itemObject) {
@@ -112,7 +154,7 @@ function insertArticle(rss_id, itemObject) {
 		db.query(q)
 			.then( rows => { 
 				// console.log(rows.insertId);
-				console.log("Successfully added " + headline + ", ID#" + rows.insertId + " to article table."); 
+				// console.log("Successfully added " + headline + ", ID#" + rows.insertId + " to article table."); 
 				
 				// return the unique id for the article as the insertArticle promise's resolution
 				resolve(rows.insertId);  
@@ -126,15 +168,24 @@ function insertArticle(rss_id, itemObject) {
 }
 
 
-
-function insertPlaceMention(place, article_id, relevance, context) {
+function insertPlaceMention(place_id, article_id, relevance, context) {
 	
-	var q = "INSERT INTO place_mention (article_id, relevance_score, context, place_id) "
-	 + "VALUES ('" + article_id + "','" + relevance + "','" + context + "','" + place_id + "')";
+	return new Promise(function(resolve, reject) {
 
-	var db = new Database; 
+		var q = "INSERT INTO place_mention (article_id, relevance_score, context, place_id) "
+	 		+ "VALUES ('" + article_id + "','" + relevance + "','" + context + "','" + place_id + "')";
 
-	db.query(q)
-		.then( rows => { db.close; })
-		.then( function() { callback( null ) });
+		var db = new Database; 
+
+		db.query(q)
+			.then( rows => { 
+					// console.log("Successfully added search result to place_mention table."); 
+					
+					// return the unique id for the article as the insertArticle promise's resolution
+					resolve(rows.insertId);  
+					
+				}, error => { console.error("The query promise has failed.", error); })
+				.then( rows =>  db.close() );
+	});
+
 }
