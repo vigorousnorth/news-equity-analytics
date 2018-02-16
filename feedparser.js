@@ -5,12 +5,8 @@ const request = require('request')
 
 require('events').EventEmitter.prototype._maxListeners = 100;
 
-// for fetching the feed
-const config = require('./config'); 
-	// contains definations for the target feed, target RSS tags, analytics terms, SQL connection
+module.exports = (url) => {
 
-
-function getFeed(url) {
 	return new Promise(function (resolve, reject) {
 
 		let req = request(url);
@@ -55,5 +51,3 @@ function getFeed(url) {
 }
 
 
-
-module.exports.getFeed = getFeed; 
