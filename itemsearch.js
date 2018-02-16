@@ -1,29 +1,3 @@
-var ready = false;
-var config = require('./config'); 
-	// contains target feed, target RSS tags and analytics terms
-
-var Database = require('./sqlConnection');
-
-var topics;
-
-function fetchTopics(callback) {
-
-	var q = "SELECT id, Name FROM places;"
-
-	var db = new Database; 
-
-	db.query(q)
-		.then( rows => {
-			topics = rows.map( function(v) {
-				return {'name': v.Name, "id": v.id};
-			});
-		})
-		.then( rows =>  db.close() )
-		.then( function() { callback( null, topics ) });
-
-}
-
-
 function parseTopics(topics) {
 
 	var topic_searchterms = [];
@@ -34,8 +8,6 @@ function parseTopics(topics) {
 				'id' : v.id,
 				'not_preceded_by' : null,
 				'not_followed_by' : null  
-				// Add additional functionality here later, to allow users additional flexibility in defining/refining search terms
-				// (e.g., search for 'Guinness' but not 'Alec Guinness')
 			});
 	});
 
@@ -58,7 +30,6 @@ function parseTopics(topics) {
 			 	}	
 			};  // end of loop through split search term
 		}
-		ready = true;
 	};
 
 	return topic_searchterms;
@@ -66,8 +37,13 @@ function parseTopics(topics) {
 }
 
 var itemsearch = function(item) {
+
+	//item is a search string; sentences is an array of sentences from the item
+	var sentences = item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g);
+	var storyLength = sentences.length;
+
 	return {
-		easyFind: function( regex, cb ) {
+		easyFind: function( regex, callback ) {
 			if ( !regex || {}.toString.call( regex ) !== "[object String]" ) {
 				callback( new TypeError( "You must provide a regular expression to search with." ) );
 				return;
@@ -75,16 +51,16 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
+			sentences.map( function( value, index ) {
 		          if ( value.match( new RegExp( regex, 'g' ) ) ) {
-		            results.push( { topic: regex, index: index + 1, value: value } );
+		            results.push( { topic: regex, index: (index + 1)*100/storyLength, value: value } );
 		          }
 		    });
 
-		    cb(null, results);
+		    callback(null, results);
 		},
 		
-		qualifiedFind: function( regex, pre, post, cb ) {
+		qualifiedFind: function( regex, pre, post, callback ) {
 			// search for a regex term not preceded by the 'pre' string and not followed by the 'post' string
 			if ( !regex || {}.toString.call( regex ) !== "[object String]" ) {
 				callback( new TypeError( "You must provide a regular expression to search with." ) );
@@ -93,18 +69,18 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
+			sentences.map( function( value, index ) {
 				
 				if ( value.match( new RegExp( regex, 'g' ) ) ) {
 					
 					// Possible match in this sentence. Now check for the pre/post conditions: 
-					var sentence = value.split(' ');
-					if (sentence[0] == ' ') {sentence.pop();}
+					var words = value.split(' ');
+					if (words[0] == ' ') {words.pop();}
 					var reg_array = regex.split(' ');
 					
 					// console.log('Possible match here!');
 
-					sentence.map(function (v,i,a) {
+					words.map(function (v,i,a) {
 
 						// console.log("v: " + v);
 						if (v.match( new RegExp( reg_array[0], 'g') ) ) {
@@ -118,7 +94,7 @@ var itemsearch = function(item) {
 									// console.log("Reject this one: " + a[(i-1)] + a[(i)] + a[(i+1)] );
 									
 								} else {
-									results.push( { topic: regex, index: index + 1, value: value } );
+									results.push( { topic: regex, index: (index + 1)*100/storyLength, value: value } );
 								}
 							}
 						}
@@ -126,7 +102,7 @@ var itemsearch = function(item) {
 				}
 		    });
 
-		    cb(null, results);
+		    callback(null, results);
 		}		
 	}
 }
@@ -140,14 +116,7 @@ function findByAttr(array, attr, value) {
     return -1;
 }
 
-// var teststring = "In South Portland. And also not Portland West or bash Portland. But not South Portland, or Westbrook. Not South Portland. But not anti-Portland. But sure in South Portland."
-
-// console.log( teststring.match( new RegExp("South Portland", 'g')));
-// itemsearch(teststring).find('South Portland', function(err, results) {
-// 	console.log(results);
-// })
 
 module.exports.itemsearch = itemsearch;
-module.exports.fetchTopics = fetchTopics;
 module.exports.parseTopics = parseTopics;
  

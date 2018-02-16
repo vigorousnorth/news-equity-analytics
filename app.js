@@ -1,6 +1,5 @@
 
-const rssMod = require('./feedparser') 
-	// for fetching the feed
+
 const config = require('./config'); 
 	// contains definations for the target feed, target RSS tags, analytics terms, SQL connection
 
@@ -8,10 +7,12 @@ const searchMod = require('./itemsearch');
 
 const Database = require('./sqlConnection');
 
-const start = searchMod.fetchTopics;
+const start = require('./queryForTopics');
+
 const itemsearch = searchMod.itemsearch;
 const list = searchMod.parseTopics;
-const getFeed = rssMod.getFeed;
+
+const getFeed = require('./feedparser') 
 	//getFeed is a promise that takes a URL argument and resolves with an array of RSS items
 
 var searchItems = [], storyItems = [];
