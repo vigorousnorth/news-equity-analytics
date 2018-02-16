@@ -113,7 +113,7 @@ start(function(err, topics) {
 	  			if (results[0]) { 
 	  				results.map( val => { val.place_id = v.id; return val; });
 	  				// console.log(results); 
-	  				mentions = results;
+	  				mentions.push.apply(mentions, results);
 	  			}
 	  		})
 	  	}
@@ -122,7 +122,7 @@ start(function(err, topics) {
 	  			if (error) { console.log('easyFind ' + error); }
 	  			else if (results[0]) { 
 	  				results.map( val => { val.place_id = v.id; return val; });
-	  				mentions = results;
+	  				mentions.push.apply(mentions, results);
 	  			}
 	  		});
 	  	}
