@@ -71,13 +71,13 @@ start(function(err, topics) {
 
 	async function searchAndAdd(article) {
 
-		let resultsPromises = [];
+		let resultsPromises = [], article_id;
 		
 		var searchstring = article.title.replace(/'/g, "\\'") + "|" 
 			+ article.summary.replace(/'/g, "\\'") + "|"
 			+ article.description;
 				
-		try { var article_id = await insertArticle(1, article); } catch (err) {console.log(err); }
+		try { article_id = await insertArticle(1, article); } catch (err) {console.log(err); }
 		// insertArticle is a promise that returns the article's SQL table ID on resolve
 		
 		var article_results = await searchStory(searchstring, searchItems); 
@@ -87,7 +87,7 @@ start(function(err, topics) {
 		
 		for (var j = article_results.length - 1; j >= 0; j--) {
 			var thisHit = article_results[j];
-			// console.log(thisHit);
+
 			try {
 				resultsPromises[j] = await insertPlaceMention(thisHit.place_id, article_id, thisHit.index, thisHit.value);
 				// insertPlaceMention is a promise that returns the row ID from the place_mentions table
@@ -128,7 +128,7 @@ start(function(err, topics) {
 	  		});
 	  	}
 	  })
-	  // console.log(mentions);
+
 	  return mentions;
 	}
 
@@ -150,7 +150,7 @@ function insertArticle(rss_id, itemObject) {
 			+ rss_id + "','" + datestr + "','" + headline
 			+ "','" + summary + "','" + itemObject.link + "')";
 		
-		var article_id, db = new Database; 
+		var db = new Database; 
 
 		db.query(q)
 			.then( rows => { 
@@ -161,8 +161,7 @@ function insertArticle(rss_id, itemObject) {
 				resolve(rows.insertId);  
 				
 			}, error => { console.error("The query promise has failed.", error); })
-			.then( rows =>  db.close() )
-			// .then( resolve(article_id) );
+			.then( rows =>  db.close() );
 		
 	});
 
@@ -170,7 +169,7 @@ function insertArticle(rss_id, itemObject) {
 
 
 function insertPlaceMention(place_id, article_id, relevance, context) {
-	
+
 	return new Promise(function(resolve, reject) {
 
 		var q = "INSERT INTO place_mention (article_id, relevance_score, context, place_id) "

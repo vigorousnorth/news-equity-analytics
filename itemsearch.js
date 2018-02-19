@@ -1,32 +1,53 @@
+var config = require('./config'); 
+
+
 function parseTopics(topics) {
 
 	var topic_searchterms = [];
 
 	topics.map(function(v,i,a) {
+
+		var not_pre = [], not_post =[];
+
+		// v.name = Amherst; v.but_not = "University of Massachusetts at Amherst, Amherst College"
+		if (v.not_preceded_by || v.not_followed_by) {
+
+			not_pre = (v.not_preceded_by && v.not_preceded_by != "") ? v.not_preceded_by.split(",") : [];
+			not_post = (v.not_followed_by && v.not_followed_by != "") ? v.not_followed_by.split(",") : [];			
+		}
+
 		topic_searchterms.push({
-				'topic' : v.name,
-				'id' : v.id,
-				'not_preceded_by' : null,
-				'not_followed_by' : null  
-			});
+			'topic' : v.name,
+			'id' : v.id,
+			'not_preceded_by' : not_pre,
+			'not_followed_by' : not_post 
+		});
+
 	});
 
 	for (var i = topics.length - 1; i >= 0; i--) {
 		// Loop through the topics array for potentially ambiguous
 		// matches (e.g. to distinguish Portland from South Portland
 		// or Virginia from West Virginia
-		var split = (topics[i]['name']).split(' ');
+		var split = (topics[i].name).split(' ');
 
 		//winnow down the potential duplicates
-
 		if (split.length > 1) { 
+			// console.log(split);
 			for (var j = split.length - 1; j >= 0; j--) {
 			 	// search for the string split[j] as a unique item 
 			 	// in the rest of the topics array, separated by commas
-			 	var ind = findByAttr(topics, 'name', split[j]); 
-			 	if (ind > -1) {
-			 		topic_searchterms[ind].not_preceded_by = (j>0) ? split[j-1] : null;
-			 		topic_searchterms[ind].not_followed_by = (j<split.length) ? split[j+1] : null;
+			 	// e.g, for "South Portland" split[1] = 'Portland', split[0] = 'South', simiarTerm = the Portland search term object
+			 	var similarTerm = findElementByProp(topic_searchterms, 'topic', split[j]);
+			 
+			 	if (similarTerm) {
+
+			 		// topic_searchterms[ind].not_preceded_by = (j>0) ? split[j-1] : null;
+			 		if (j>0 && split[j-1]) { 
+			 			similarTerm.not_preceded_by.push(split[j-1]); 
+			 		}
+			 		if (j<split.length && split[j+1]) { 
+			 			similarTerm.not_followed_by.push(split[j+1]); }
 			 	}	
 			};  // end of loop through split search term
 		}
@@ -38,11 +59,11 @@ function parseTopics(topics) {
 
 var itemsearch = function(item) {
 
-	//item is a search string; sentences is an array of sentences from the item
 	var sentences = item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g);
 	var storyLength = sentences.length;
-
+	
 	return {
+
 		easyFind: function( regex, callback ) {
 			if ( !regex || {}.toString.call( regex ) !== "[object String]" ) {
 				callback( new TypeError( "You must provide a regular expression to search with." ) );
@@ -51,9 +72,9 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			sentences.map( function( value, index ) {
+			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
 		          if ( value.match( new RegExp( regex, 'g' ) ) ) {
-		            results.push( { topic: regex, index: (index + 1)*100/storyLength, value: value } );
+		            results.push( { topic: regex, index: index + 1, value: value } );
 		          }
 		    });
 
@@ -61,7 +82,10 @@ var itemsearch = function(item) {
 		},
 		
 		qualifiedFind: function( regex, pre, post, callback ) {
-			// search for a regex term not preceded by the 'pre' string and not followed by the 'post' string
+			// search for a regex term (topic name),
+			// not preceded by strings in the 'pre' array 
+			// and not followed by strings in the 'post' array
+
 			if ( !regex || {}.toString.call( regex ) !== "[object String]" ) {
 				callback( new TypeError( "You must provide a regular expression to search with." ) );
 				return;
@@ -69,35 +93,53 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			sentences.map( function( value, index ) {
+			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
 				
-				if ( value.match( new RegExp( regex, 'g' ) ) ) {
-					
+				var candidates = value.match( new RegExp( regex, 'g' ) );
+				
+				if (candidates) {
+					// console.log(candidates);
 					// Possible match in this sentence. Now check for the pre/post conditions: 
-					var words = value.split(' ');
-					if (words[0] == ' ') {words.pop();}
-					var reg_array = regex.split(' ');
 					
-					// console.log('Possible match here!');
+					// console.log("********* Searching for: " + regex);
+					// console.log("********* in sentence: " + value);
 
-					words.map(function (v,i,a) {
+					var cl = candidates.length;
 
-						// console.log("v: " + v);
-						if (v.match( new RegExp( reg_array[0], 'g') ) ) {
-							
-							if ( !reg_array[1] || (a[i+1]).match( new RegExp( reg_array[1] , 'g') ) ) {
-								
-								// Continue; the next word in the sentence matches the next word in the search expression
-								if ( ( pre && a[(i-1)] && (a[(i-1)]).match( new RegExp( pre , 'gi') ) ) ||
-									 ( post && a[(i+1)] && (a[(i+1)]).match( new RegExp( post , 'gi') ) )
-								) {
-									// console.log("Reject this one: " + a[(i-1)] + a[(i)] + a[(i+1)] );
-									
-								} else {
-									results.push( { topic: regex, index: (index + 1)*100/storyLength, value: value } );
-								}
-							}
+					var sentence = value.split(regex);
+					// split the sentence into an array containing the part before the match and the part after
+
+					if (sentence[0] == ' ') {sentence.pop();}
+					var l = sentence.length;
+
+					sentence.map(function (v,i,a) {
+
+						var lastpart = v;
+						var nextpart = a[i+1] ? a[i+1] : null;
+						
+						// console.log("Last part: ---" + v + '---; next part: ---' + nextpart + '---');
+						// Continue; the next word in the sentence matches the next word in the search expression
+						if ((i = l) && (!nextpart) ) { 
+							// console.log("End of sentence.");
+							return null; 
 						}
+
+						else if ( pre && searchBackwards(lastpart,pre) ) 
+							{
+								// console.log("REJECT: " + pre + ' found in "' + lastpart.substr(-8) + '"' );
+								return null;
+							}
+
+						else if ( post && nextpart && searchForwards(nextpart, post) ) 
+							{
+								// console.log("!!!!! Reject this one: " + post + ' found in "' + nextpart.substr(0,8) + '"' );
+								return null;
+							} 
+						else {
+							// console.log("-- This looks like one: " + lastpart + '***' + regex + '*** ' + nextpart );
+							results.push( { topic: regex, index: ((index + 1)*100/storyLength).toFixed(0), value: value } );
+						}
+
 					}) 									
 				}
 		    });
@@ -107,16 +149,37 @@ var itemsearch = function(item) {
 	}
 }
 
-function findByAttr(array, attr, value) {
-    for(var i = 0; i < array.length; i += 1) {
-        if(array[i][attr] === value) {
-            return i;
-        }
-    }
-    return -1;
+function searchBackwards(string, pre_array) {
+	var match = false;
+	for (var i = pre_array.length - 1; i >= 0; i--) {
+		if (string.match( new RegExp( pre_array[i] + "\\s?$" , 'g') ) )
+			{ match = true; break; }
+		else continue;
+	}
+	return match;
 }
 
+function searchForwards(string, post_array) {
+	var match = false;
+	for (var i = post_array.length - 1; i >= 0; i--) {
+		if (string.match( new RegExp( "^\\s?" + post_array[i] , 'g') ) )
+			{ match = true; break; }
+		else continue;
+	}
+	return match;
+}
+
+function findElementByProp(arr, propName, propValue) {
+  var returnVal = null;
+  for (var i=0; i < arr.length; i++) {
+    if (arr[i][propName] === propValue) {
+			returnVal = arr[i];
+    }
+  } 
+  return returnVal;
+}
 
 module.exports.itemsearch = itemsearch;
+// module.exports.fetchTopics = fetchTopics;
 module.exports.parseTopics = parseTopics;
  
