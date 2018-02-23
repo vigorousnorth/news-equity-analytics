@@ -8,16 +8,16 @@ const searchMod = require('./itemsearch');
 const Database = require('./sqlConnection');
 
 const start = require('./queryForTopics');
+const getFeedUrls = require('./queryForFeeds');
 
 const itemsearch = searchMod.itemsearch;
 const list = searchMod.parseTopics;
 
-const getFeed = require('./feedparser') 
+const getFeedContent = require('./feedparser') 
 	//getFeed is a promise that takes a URL argument and resolves with an array of RSS items
 
 var searchItems = [], storyItems = [];
 
-var url = config.feed;
 
 start(function(err, topics) {
 
@@ -39,8 +39,16 @@ start(function(err, topics) {
 				console.log("The parseTheTopics promise has failed.", error); 
 			})
 		.then(function(response) {
-				return getFeed(url); 
+				return getFeedUrls();
+			}, function(error) { 
+				console.log("The RSS URL query has failed", error); 
+			})
+		.then(function(urls) {
+			  var url = urls[0].url
+				return getFeedContent(url); 
 				// A promise that returns the array of RSS items when resolved.
+			}, function(error) { 
+				console.log("The feedparser promise has failed", error); 
 			})
 		.then(function(feedItems) {
 				console.log("Got the feed.");
@@ -65,6 +73,7 @@ start(function(err, topics) {
 		  	console.error("The getFeed promise has failed.", error);
 			})
 		.then(function(response) {
+			response.sort(function(a, b){return (+a) - (+b)});
 			console.log("Article IDs added: " + response);
 		}, function(error) {console.error("The insertArticle promise has failed.", error); });
 
