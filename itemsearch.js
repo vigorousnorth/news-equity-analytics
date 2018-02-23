@@ -1,6 +1,3 @@
-var config = require('./config'); 
-
-
 function parseTopics(topics) {
 
 	var topic_searchterms = [];
@@ -72,9 +69,14 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
+			sentences.map( function( value, index ) {
 		          if ( value.match( new RegExp( regex, 'g' ) ) ) {
-		            results.push( { topic: regex, index: index + 1, value: value } );
+		            results.push( 
+			            { 
+			            	topic: regex, 
+			            	index: ((index + 1)*100/storyLength).toFixed(0), 
+			            	value: value 
+			            } );
 		          }
 		    });
 
@@ -93,7 +95,7 @@ var itemsearch = function(item) {
 
 			var results = [];
 
-			item.match(/\(?[^\.\?\!]+[\.!\?]\)?/g).map( function( value, index ) {
+			sentences.map( function( value, index ) {
 				
 				var candidates = value.match( new RegExp( regex, 'g' ) );
 				
@@ -117,8 +119,6 @@ var itemsearch = function(item) {
 						var lastpart = v;
 						var nextpart = a[i+1] ? a[i+1] : null;
 						
-						// console.log("Last part: ---" + v + '---; next part: ---' + nextpart + '---');
-						// Continue; the next word in the sentence matches the next word in the search expression
 						if ((i = l) && (!nextpart) ) { 
 							// console.log("End of sentence.");
 							return null; 
@@ -126,18 +126,23 @@ var itemsearch = function(item) {
 
 						else if ( pre && searchBackwards(lastpart,pre) ) 
 							{
-								// console.log("REJECT: " + pre + ' found in "' + lastpart.substr(-8) + '"' );
+								// console.log("Reject this one: " + pre + ' found in "' + lastpart.substr(-8) + '"' );
 								return null;
 							}
 
 						else if ( post && nextpart && searchForwards(nextpart, post) ) 
 							{
-								// console.log("!!!!! Reject this one: " + post + ' found in "' + nextpart.substr(0,8) + '"' );
+								// console.log("Reject this one: " + post + ' found in "' + nextpart.substr(0,8) + '"' );
 								return null;
 							} 
 						else {
 							// console.log("-- This looks like one: " + lastpart + '***' + regex + '*** ' + nextpart );
-							results.push( { topic: regex, index: ((index + 1)*100/storyLength).toFixed(0), value: value } );
+							results.push( 
+								{ 
+									topic: regex, 
+									index: ((index + 1)*100/storyLength).toFixed(0), 
+									value: value 
+								} );
 						}
 
 					}) 									
@@ -180,6 +185,5 @@ function findElementByProp(arr, propName, propValue) {
 }
 
 module.exports.itemsearch = itemsearch;
-// module.exports.fetchTopics = fetchTopics;
 module.exports.parseTopics = parseTopics;
  
