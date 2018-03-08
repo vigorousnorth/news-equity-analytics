@@ -1,19 +1,25 @@
 function parseTopics(topics) {
 
-	var topic_searchterms = [];
+	let markets = [...new Set(topics.map(v => v.market_id))], topic_searchterms = [];
+
+	for (var i = markets.length - 1; i >= 0; i--) {
+		topic_searchterms[i] = { 'market' : markets[i], 'searchterms' : [] }
+	};
 
 	topics.map(function(v,i,a) {
 
 		var not_pre = [], not_post =[];
 
-		// v.name = Amherst; v.but_not = "University of Massachusetts at Amherst, Amherst College"
 		if (v.not_preceded_by || v.not_followed_by) {
-
 			not_pre = (v.not_preceded_by && v.not_preceded_by != "") ? v.not_preceded_by.split(",") : [];
 			not_post = (v.not_followed_by && v.not_followed_by != "") ? v.not_followed_by.split(",") : [];			
 		}
 
-		topic_searchterms.push({
+		var market_id = v.market_id;
+
+		var topicGroup = findElementByProp(topic_searchterms, 'market', market_id);
+
+		topicGroup.searchterms.push({
 			'topic' : v.name,
 			'id' : v.id,
 			'not_preceded_by' : not_pre,
@@ -22,33 +28,40 @@ function parseTopics(topics) {
 
 	});
 
-	for (var i = topics.length - 1; i >= 0; i--) {
-		// Loop through the topics array for potentially ambiguous
-		// matches (e.g. to distinguish Portland from South Portland
-		// or Virginia from West Virginia
-		var split = (topics[i].name).split(' ');
 
-		//winnow down the potential duplicates
-		if (split.length > 1) { 
-			// console.log(split);
-			for (var j = split.length - 1; j >= 0; j--) {
-			 	// search for the string split[j] as a unique item 
-			 	// in the rest of the topics array, separated by commas
-			 	// e.g, for "South Portland" split[1] = 'Portland', split[0] = 'South', simiarTerm = the Portland search term object
-			 	var similarTerm = findElementByProp(topic_searchterms, 'topic', split[j]);
-			 
-			 	if (similarTerm) {
+	for (var h = topic_searchterms.length - 1; h >= 0; h--) {
+		var topiclist = topic_searchterms[h].searchterms;
 
-			 		// topic_searchterms[ind].not_preceded_by = (j>0) ? split[j-1] : null;
-			 		if (j>0 && split[j-1]) { 
-			 			similarTerm.not_preceded_by.push(split[j-1]); 
-			 		}
-			 		if (j<split.length && split[j+1]) { 
-			 			similarTerm.not_followed_by.push(split[j+1]); }
-			 	}	
-			};  // end of loop through split search term
-		}
-	};
+		for (var i = topiclist.length - 1; i >= 0; i--) {
+			// Loop through the topics array for potentially ambiguous
+			// matches (e.g. to distinguish Portland from South Portland
+			// or Virginia from West Virginia
+			var split = (topics[i].name).split(' ');
+
+			//winnow down the potential duplicates
+			if (split.length > 1) { 
+				// console.log(split);
+				for (var j = split.length - 1; j >= 0; j--) {
+				 	// search for the string split[j] as a unique item 
+				 	// in the rest of the topics array, separated by commas
+				 	// e.g, for "South Portland" split[1] = 'Portland', split[0] = 'South', 
+				 	// simiarTerm = the Portland search term object
+				 	var similarTerm = findElementByProp(topic_searchterms, 'topic', split[j]);
+				 
+				 	if (similarTerm) {
+
+				 		// topic_searchterms[ind].not_preceded_by = (j>0) ? split[j-1] : null;
+				 		if (j>0 && split[j-1]) { 
+				 			similarTerm.not_preceded_by.push(split[j-1]); 
+				 		}
+				 		if (j<split.length && split[j+1]) { 
+				 			similarTerm.not_followed_by.push(split[j+1]); }
+				 	}	
+				};  // end of loop through split search term
+			}
+		} // end of loop through this market's topic list
+
+	}; // end of loop through market groups
 
 	return topic_searchterms;
 
@@ -186,4 +199,5 @@ function findElementByProp(arr, propName, propValue) {
 
 module.exports.itemsearch = itemsearch;
 module.exports.parseTopics = parseTopics;
+module.exports.findElementByProp = findElementByProp;
  

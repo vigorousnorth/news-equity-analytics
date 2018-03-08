@@ -1,23 +1,19 @@
-
-
-const config = require('./config'); 
-	// contains definations for the target feed, target RSS tags, analytics terms, SQL connection
-
 const searchMod = require('./itemsearch');
 
-const Database = require('./sqlConnection');
-
 const start = require('./queryForTopics');
-const getFeedUrls = require('./queryForFeeds');
+const queryForFeeds = require('./queryForFeeds');
+const insertArticle = require('./insertArticle');
+const insertPlaceMention = require('./insertPlaceMention')
 
 const itemsearch = searchMod.itemsearch;
 const list = searchMod.parseTopics;
+const findElementByProp = searchMod.findElementByProp;
 
-const getFeedContent = require('./feedparser') 
-	//getFeed is a promise that takes a URL argument and resolves with an array of RSS items
+const getFeedContent = require('./feedparser');
+
+const scraper = require('./articleScraper');
 
 var searchItems = [], storyItems = [];
-
 
 start(function(err, topics) {
 
@@ -35,39 +31,66 @@ start(function(err, topics) {
 	parseTheTopics(topics)
 		.then(function(response) {
 				searchItems = response;
+				// searchItems contains an array of topics grouped by market area
 			}, function(error) { 
 				console.log("The parseTheTopics promise has failed.", error); 
 			})
 		.then(function(response) {
-				return getFeedUrls();
+				return queryForFeeds();
+				// getFeedUrls returns a promise that resolves with an array of RSS feed IDs, market IDs and URLs.
 			}, function(error) { 
-				console.log("The RSS URL query has failed", error); 
+				console.log("The queryForFeeds promise has failed", error); 
 			})
 		.then(function(urls) {
-			  var url = urls[0].url
-				return getFeedContent(url); 
-				// A promise that returns the array of RSS items when resolved.
+
+				var promiseArray = [];
+
+				for (var i = 0;  i < urls.length;  i++) {
+					if (urls[i].url) { promiseArray[i] = getFeedContent(urls[i].url); }
+					// getFeedContent returns a promise that returns the array of RSS items when resolved.
+				};
+
+				return Promise.all(promiseArray).then( function(feeds) {
+					var feedObj = feeds.map( function(v,i,a) {
+						return {
+							'id': urls[i].id, 
+							'market_id' : urls[i].market_id, 
+							'XML_structure' : urls[i].structure,
+							'content': v
+						}
+					});
+					return feedObj; 
+					// an array of feeds containing arrays of feed article IDs
+				}, error => { console.log("Failure in feedparser Promise.all()." + error ); });
+				
 			}, function(error) { 
 				console.log("The feedparser promise has failed", error); 
 			})
-		.then(function(feedItems) {
-				console.log("Got the feed.");
+		.then(function(feeds) {
+				console.log("Got the feeds.");
 				
 				var promiseArray = [];
 
-				for (var i = 0;  i < feedItems.length - 1;  i++) {
+				for (var i = 0;  i < feeds.length;  i++) {
 					
-					var article = feedItems[i];
+					var feedItemArray = feeds[i].content,
+					 marketArea = feeds[i].market_id,
+					 rss_id = feeds[i].id,
+					 XML_structure = feeds[i].XML_structure;
 
-					if (article) { promiseArray[i] = searchAndAdd(feedItems[i]); }
-
-						// nest the search functions inside this promise, so that each article
-						// is searched as it's added to the table	
+					for (var j = 0;  j < feedItemArray.length;  j++) {
+						
+						var article = feedItemArray[j];
+						
+						if (article) { 
+							promiseArray.push(searchAndAdd(article, XML_structure, rss_id, marketArea)); 
+						}
+					}
 				};
 				
 				return Promise.all(promiseArray).then( function(values) {
 				  return values; // an array of article IDs
-				}, error => { console.log("Failure in Promise.all()." + error ); });
+				}, error => { console.log("Failure in searchAndAdd Promise.all()." + error ); });
 			
 			}, function(error) {
 		  	console.error("The getFeed promise has failed.", error);
@@ -78,18 +101,38 @@ start(function(err, topics) {
 		}, function(error) {console.error("The insertArticle promise has failed.", error); });
 
 
-	async function searchAndAdd(article) {
-
-		let resultsPromises = [], article_id;
+	async function searchAndAdd(article, XML_structure, rss_id, market) {
 		
-		var searchstring = article.title.replace(/'/g, "\\'") + "|" 
-			+ article.summary.replace(/'/g, "\\'") + "|"
-			+ article.description;
-				
-		try { article_id = await insertArticle(1, article); } catch (err) {console.log(err); }
+		let resultsPromises = [], article_id,
+		thisMarketSearchGroup = findElementByProp(searchItems, "market", market),
+		headline = article[XML_structure.headline],
+		subhed = article[XML_structure.subhed],
+		url = article[XML_structure.url],
+		articlebody;
+
+		let thisMarketSearchItems = thisMarketSearchGroup.searchterms;
+
+		if (XML_structure.scrapertag) {
+			var tag = XML_structure.scrapertag;
+			try { articlebody = await scraper(url,tag); }
+			catch (err) {console.log("articleScraper error: " + err); }
+		}
+
+		else {
+			articlebody = article.description.replace(/<\/?[pa][^>]*>/g, "").replace(/'/g, "\\'");
+		}
+
+		headline.replace(/'/g, "\\'");  
+		subhed.replace(/'/g, "\\'"); 
+
+		var searchstring = headline + " | " + subhed + " | "
+			+ articlebody;
+
+		try { article_id = await insertArticle(rss_id, article); 
+		} catch (err) {console.log("insertArticle error:" + err); }
 		// insertArticle is a promise that returns the article's SQL table ID on resolve
 		
-		var article_results = await searchStory(searchstring, searchItems); 
+		var article_results = await searchStory(searchstring, thisMarketSearchItems); 
 		// returns an array of topic mentions from the article
 		// each result is an object of the form {topic: topic name, id: id from the place_mentions table
 		// index: position within the search string, and value: search result context }
@@ -100,7 +143,6 @@ start(function(err, topics) {
 			try {
 				resultsPromises[j] = await insertPlaceMention(thisHit.place_id, article_id, thisHit.index, thisHit.value);
 				// insertPlaceMention is a promise that returns the row ID from the place_mentions table
-
 			} catch (err) {console.err(err); }
 		};
 
@@ -144,57 +186,3 @@ start(function(err, topics) {
 });  // end of start function
 
 
-function insertArticle(rss_id, itemObject) {
-
-	return new Promise(function(resolve, reject) {
-		
-		var headline = itemObject.title.replace(/'/g, "\\'");
-		var summary = itemObject.summary.replace(/'/g, "\\'")
-		var date = itemObject.date;
-
-		var datestr = date.toISOString().slice(0, 19).replace('T', ' ');
-		// console.log(datestr);
-
-		var q = "INSERT INTO articles (rss_source_id, date, headline, summary, url_slug) VALUES ('" 
-			+ rss_id + "','" + datestr + "','" + headline
-			+ "','" + summary + "','" + itemObject.link + "')";
-		
-		var db = new Database; 
-
-		db.query(q)
-			.then( rows => { 
-				// console.log(rows.insertId);
-				// console.log("Successfully added " + headline + ", ID#" + rows.insertId + " to article table."); 
-				
-				// return the unique id for the article as the insertArticle promise's resolution
-				resolve(rows.insertId);  
-				
-			}, error => { console.error("The query promise has failed.", error); })
-			.then( rows =>  db.close() );
-		
-	});
-
-}
-
-
-function insertPlaceMention(place_id, article_id, relevance, context) {
-
-	return new Promise(function(resolve, reject) {
-
-		var q = "INSERT INTO place_mention (article_id, relevance_score, context, place_id) "
-	 		+ "VALUES ('" + article_id + "','" + relevance + "','" + context + "','" + place_id + "')";
-
-		var db = new Database; 
-
-		db.query(q)
-			.then( rows => { 
-					// console.log("Successfully added search result to place_mention table."); 
-					
-					// return the unique id for the article as the insertArticle promise's resolution
-					resolve(rows.insertId);  
-					
-				}, error => { console.error("The query promise has failed.", error); })
-				.then( rows =>  db.close() );
-	});
-
-}

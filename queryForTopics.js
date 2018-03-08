@@ -1,28 +1,40 @@
-var config = require('./config'); 
-	// contains target feed, target RSS tags and analytics terms
+const { Pool, Client } = require('pg');
 
-var Database = require('./sqlConnection');
+require('dotenv').config();
 
 var topics;
 
 module.exports = (callback) => {
 
-	var q = "SELECT id, Name, not_preceded_by, not_followed_by FROM places;"
+	var q = "SELECT id, place_name, not_preceded_by, not_followed_by, market_id FROM places;"
+	
+	var db = new Client({
+		host: process.env.DB_HOST,
+	  user: process.env.DB_USER,
+	  password: process.env.DB_PASS,
+	  database: process.env.DB
+	});
 
-	var db = new Database; 
+	db.connect();
 
 	db.query(q)
-		.then( rows => {
-			topics = rows.map( function(v) {
+		.then( res => {
+
+			topics = (res.rows).map( function(v) {
 				return {
-					'name': v.Name,
+					'name': v.place_name,
 					'id' : v.id,
 					'not_followed_by' : v.not_followed_by,
-					'not_preceded_by' : v.not_preceded_by
+					'not_preceded_by' : v.not_preceded_by,
+					'market_id' : v.market_id
 				}
 			});
+			
+			db.end();
+
 		})
-		.then( rows =>  db.close() )
+		// .then( res =>  resolve(db.end()) )
 		.then( function() { callback( null, topics ) });
 
 }
+

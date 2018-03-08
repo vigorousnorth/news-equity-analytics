@@ -3,7 +3,9 @@
 const FeedParser = require('feedparser')
 const request = require('request')
 
-require('events').EventEmitter.prototype._maxListeners = 100;
+require('events').EventEmitter.prototype._maxListeners = 200;
+
+
 
 module.exports = (url) => {
 
