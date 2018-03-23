@@ -159,8 +159,11 @@ start(function(err, topics) {
 		var mentions = [];
 	  //	each mention is an object of the form {topic: topic, index: position within the search string, and value: search result context }
 	  searchtopics.map(function(v,j,a) {
+  		
+  		var str = v.alias ? v.name + "|" + v.alias : v.name;
+
 	  	if (v.not_preceded_by || v.not_followed_by) {
-	  		itemsearch(searchstring).qualifiedFind(v.topic, v.not_preceded_by, v.not_followed_by, function(error, results) {
+	  		itemsearch(searchstring).qualifiedFind(str, v.not_preceded_by, v.not_followed_by, function(error, results) {
 	  			if (error) {console.log('qualifiedFind ' + error); }
 	  			if (results[0]) { 
 	  				results.map( val => { val.place_id = v.id; return val; });
@@ -170,7 +173,8 @@ start(function(err, topics) {
 	  		})
 	  	}
 	  	else {
-	  		itemsearch(searchstring).easyFind(v.topic, function(error, results) {
+	  		itemsearch(searchstring).easyFind(str, function(error, results) {
+
 	  			if (error) { console.log('easyFind ' + error); }
 	  			else if (results[0]) { 
 	  				results.map( val => { val.place_id = v.id; return val; });

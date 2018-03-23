@@ -1,15 +1,18 @@
 function parseTopics(topics) {
 
-	let markets = [...new Set(topics.map(v => v.market_id))], topic_searchterms = [];
+	let markets = [...new Set(topics.map(v => v.market_id))];
+
+	var market_searchterms = [];
 
 	for (var i = markets.length - 1; i >= 0; i--) {
-		topic_searchterms[i] = { 'market' : markets[i], 'searchterms' : [] }
+		market_searchterms[i] = { 'market' : markets[i], 'searchterms' : [] }
 	};
 
 	topics.map(function(v,i,a) {
 
 		var not_pre = [], not_post =[];
 
+		//Convert qualifier strings from SQL query into arrays
 		if (v.not_preceded_by || v.not_followed_by) {
 			not_pre = (v.not_preceded_by && v.not_preceded_by != "") ? v.not_preceded_by.split(",") : [];
 			not_post = (v.not_followed_by && v.not_followed_by != "") ? v.not_followed_by.split(",") : [];			
@@ -17,10 +20,11 @@ function parseTopics(topics) {
 
 		var market_id = v.market_id;
 
-		var topicGroup = findElementByProp(topic_searchterms, 'market', market_id);
+		var marketGroup = findElementByProp(market_searchterms, 'market', market_id);
 
-		topicGroup.searchterms.push({
-			'topic' : v.name,
+		marketGroup.searchterms.push({
+			'name' : v.name,
+			'alias' : v.alias,
 			'id' : v.id,
 			'not_preceded_by' : not_pre,
 			'not_followed_by' : not_post 
@@ -28,42 +32,49 @@ function parseTopics(topics) {
 
 	});
 
+	for (var h = market_searchterms.length - 1; h >= 0; h--) {
 
-	for (var h = topic_searchterms.length - 1; h >= 0; h--) {
-		var topiclist = topic_searchterms[h].searchterms;
+		var thisMarketTopicList = market_searchterms[h].searchterms;
 
-		for (var i = topiclist.length - 1; i >= 0; i--) {
+		for (var i = thisMarketTopicList.length - 1; i >= 0; i--) {
 			// Loop through the topics array for potentially ambiguous
 			// matches (e.g. to distinguish Portland from South Portland
 			// or Virginia from West Virginia
-			var split = (topics[i].name).split(' ');
-
+			var split = (thisMarketTopicList[i].name).split(' ');
+			var aliassplit = thisMarketTopicList[i].alias ? (thisMarketTopicList[i].alias).split(' ') : null;
+			
 			//winnow down the potential duplicates
-			if (split.length > 1) { 
-				// console.log(split);
-				for (var j = split.length - 1; j >= 0; j--) {
-				 	// search for the string split[j] as a unique item 
-				 	// in the rest of the topics array, separated by commas
-				 	// e.g, for "South Portland" split[1] = 'Portland', split[0] = 'South', 
-				 	// simiarTerm = the Portland search term object
-				 	var similarTerm = findElementByProp(topic_searchterms, 'topic', split[j]);
-				 
-				 	if (similarTerm) {
+			if (aliassplit && (aliassplit.length > 1)) { searchForParts(aliassplit, thisMarketTopicList); }
+			if (split.length > 1) { searchForParts(split, thisMarketTopicList); }
+			
 
-				 		// topic_searchterms[ind].not_preceded_by = (j>0) ? split[j-1] : null;
-				 		if (j>0 && split[j-1]) { 
-				 			similarTerm.not_preceded_by.push(split[j-1]); 
-				 		}
-				 		if (j<split.length && split[j+1]) { 
-				 			similarTerm.not_followed_by.push(split[j+1]); }
-				 	}	
-				};  // end of loop through split search term
-			}
 		} // end of loop through this market's topic list
 
 	}; // end of loop through market groups
 
-	return topic_searchterms;
+	function searchForParts(splitArr, topicList) {
+		
+		for (var j = splitArr.length - 1; j >= 0; j--) {
+		 	// search for the string splitArr[j] as a unique item 
+		 	// in the rest of the topics array, separated by commas
+		 	// e.g, for "South Portland" split[1] = 'Portland', split[0] = 'South', 
+		 	// simiarTerm = the Portland search term object
+		 	
+		 	var similarTerm = findElementByProp(topicList, 'name', splitArr[j]) ?
+		 		findElementByProp(topicList, 'name', splitArr[j]) : findElementByProp(topicList, 'alias', splitArr[j]);
+		 
+		 	if (similarTerm) {
+
+		 		if (j>0 && splitArr[j-1]) { 
+		 			similarTerm.not_preceded_by.push(splitArr[j-1]); 
+		 		}
+		 		if (j<splitArr.length && splitArr[j+1]) { 
+		 			similarTerm.not_followed_by.push(splitArr[j+1]); }
+		 	}	
+		};  // end of loop through splitArr 
+	} // end of searchForParts function
+
+	return market_searchterms;
 
 }
 
@@ -119,25 +130,30 @@ var itemsearch = function(item) {
 					// console.log("********* Searching for: " + regex);
 					// console.log("********* in sentence: " + value);
 
+					regexArr = regex.split("|");
+					splitExp = (regexArr.length > 1) ? new RegExp( regexArr[0] + "|" + regexArr[1]) : regex;
+
 					var cl = candidates.length;
 
-					var sentence = value.split(regex);
+					var sentence = value.split(splitExp);
 					// split the sentence into an array containing the part before the match and the part after
-
+					
 					if (sentence[0] == ' ') {sentence.pop();}
+					
 					var l = sentence.length;
 
 					sentence.map(function (v,i,a) {
 
 						var lastpart = v;
+					
 						var nextpart = a[i+1] ? a[i+1] : null;
-						
+
 						if ((i = l) && (!nextpart) ) { 
 							// console.log("End of sentence.");
 							return null; 
 						}
 
-						else if ( pre && searchBackwards(lastpart,pre) ) 
+						if ( pre && searchBackwards(lastpart,pre) ) 
 							{
 								// console.log("Reject this one: " + pre + ' found in "' + lastpart.substr(-8) + '"' );
 								return null;
@@ -148,6 +164,7 @@ var itemsearch = function(item) {
 								// console.log("Reject this one: " + post + ' found in "' + nextpart.substr(0,8) + '"' );
 								return null;
 							} 
+
 						else {
 							// console.log("-- This looks like one: " + lastpart + '***' + regex + '*** ' + nextpart );
 							results.push( 
