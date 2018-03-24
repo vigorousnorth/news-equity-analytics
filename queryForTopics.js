@@ -15,7 +15,7 @@ module.exports = (callback) => {
 	//   database: process.env.DB
 	// });
 
-	const client = new Client({
+	const db = new Client({
 	  connectionString: process.env.DATABASE_URL,
 	  ssl: true,
 	});

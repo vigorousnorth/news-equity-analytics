@@ -16,7 +16,7 @@ module.exports = (place_id, article_id, relevance, context) => {
 		//   database: process.env.DB
 		// });
 
-		const client = new Client({
+		const db = new Client({
 		  connectionString: process.env.DATABASE_URL,
 		  ssl: true,
 		});
