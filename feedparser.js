@@ -6,7 +6,6 @@ const request = require('request')
 require('events').EventEmitter.prototype._maxListeners = 200;
 
 
-
 module.exports = (url) => {
 
 	return new Promise(function (resolve, reject) {

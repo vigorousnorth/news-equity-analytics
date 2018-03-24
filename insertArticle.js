@@ -1,6 +1,6 @@
 const { Pool, Client } = require('pg');
 
-require('dotenv').config
+// require('dotenv').config
 
 module.exports = (rss_id, itemObject) => {
 
@@ -17,13 +17,18 @@ module.exports = (rss_id, itemObject) => {
 			+ rss_id + "','" + datestr + "','" + headline
 			+ "','" + summary + "','" + itemObject.link + "') RETURNING id;";
 		
-		var db = new Client({
-			host: process.env.DB_HOST,
-		  user: process.env.DB_USER,
-		  password: process.env.DB_PASS,
-		  database: process.env.DB
-		});
+		// var db = new Client({
+		// 	host: process.env.DB_HOST,
+		//   user: process.env.DB_USER,
+		//   password: process.env.DB_PASS,
+		//   database: process.env.DB
+		// });
 
+		const client = new Client({
+		  connectionString: process.env.DATABASE_URL,
+		  ssl: true,
+		});
+		
 		db.connect();
 
 		db.query(q)

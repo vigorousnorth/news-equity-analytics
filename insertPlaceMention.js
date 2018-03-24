@@ -1,6 +1,6 @@
 const { Pool, Client } = require('pg');
 
-require('dotenv').config
+// require('dotenv').config
 
 module.exports = (place_id, article_id, relevance, context) => {
 
@@ -9,13 +9,18 @@ module.exports = (place_id, article_id, relevance, context) => {
 		var q = "INSERT INTO place_mentions (article_id, relevance_score, context, place_id) "
 	 		+ "VALUES ('" + article_id + "','" + relevance + "','" + context + "','" + place_id + "')";
 
-		var db = new Client({
-			host: process.env.DB_HOST,
-		  user: process.env.DB_USER,
-		  password: process.env.DB_PASS,
-		  database: process.env.DB
-		});
+		// var db = new Client({
+		// 	host: process.env.DB_HOST,
+		//   user: process.env.DB_USER,
+		//   password: process.env.DB_PASS,
+		//   database: process.env.DB
+		// });
 
+		const client = new Client({
+		  connectionString: process.env.DATABASE_URL,
+		  ssl: true,
+		});
+				
 		db.connect();
 
 		db.query(q)

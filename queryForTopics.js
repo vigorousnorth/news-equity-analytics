@@ -1,6 +1,6 @@
 const { Pool, Client } = require('pg');
 
-require('dotenv').config();
+// require('dotenv').config();
 
 var topics;
 
@@ -8,11 +8,16 @@ module.exports = (callback) => {
 
 	var q = "SELECT id, place_name, place_aliases, not_preceded_by, not_followed_by, market_id FROM places;"
 	
-	var db = new Client({
-		host: process.env.DB_HOST,
-	  user: process.env.DB_USER,
-	  password: process.env.DB_PASS,
-	  database: process.env.DB
+	// var db = new Client({
+	// 	host: process.env.DB_HOST,
+	//   user: process.env.DB_USER,
+	//   password: process.env.DB_PASS,
+	//   database: process.env.DB
+	// });
+
+	const client = new Client({
+	  connectionString: process.env.DATABASE_URL,
+	  ssl: true,
 	});
 
 	db.connect();
