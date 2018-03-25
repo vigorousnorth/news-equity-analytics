@@ -1,3 +1,4 @@
 .env
 *.sql
 config.js
+ignore/*

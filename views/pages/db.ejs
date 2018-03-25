@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+
+<body>
+
+<div class="container">
+<h2>Database Results</h2>
+
+<ul>
+    <% results.forEach(function(r) { %>
+        <li><%= r.id %> - <a href='<%= r.url %>'><%= r.headline %></a></li>
+    <% }); %>
+</ul>
+
+</div>
+
+</body>
+</html>
