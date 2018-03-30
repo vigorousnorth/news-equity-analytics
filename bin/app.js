@@ -1,17 +1,19 @@
-const searchMod = require('./itemsearch');
+const searchMod = require('../lib/itemsearch');
 
-const start = require('./queryForTopics');
-const queryForFeeds = require('./queryForFeeds');
-const insertArticle = require('./insertArticle');
-const insertPlaceMention = require('./insertPlaceMention')
+const start = require('../lib/queryForTopics');
+const queryForFeeds = require('../lib/queryForFeeds');
+const insertArticle = require('../lib/insertArticle');
+const insertPlaceMention = require('../lib/insertPlaceMention')
 
 const itemsearch = searchMod.itemsearch;
 const list = searchMod.parseTopics;
 const findElementByProp = searchMod.findElementByProp;
 
-const getFeedContent = require('./feedparser');
+const getFeedContent = require('../lib/feedparser');
 
-const scraper = require('./articleScraper');
+const scraper = require('../lib/articleScraper');
+
+console.log(scraper);
 
 var searchItems = [], storyItems = [];
 
