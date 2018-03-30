@@ -1,26 +1,29 @@
 {
   "name": "newsequityproject",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Content analytics for news websites.",
-  "main": "app.js",
+  "bin": {
+    "newsequityproject": "./bin/local_app"
+  },
+  "scripts": {
+    "start": "node lib/app.js",
+    "test": "mocha \"tests/*_test.js\""
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "dotenv": "^5.0.1",
-    "ejs": "^2.5.7",
+    "ejs": "^2.5.8",
     "express": "^4.16.3",
-    "feedparser": "^2.2.4",
+    "feedparser": "^2.2.9",
     "pg": "^7.4.1",
-    "request": "^2.83.0"
+    "request": "^2.85.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "mocha": "^5.0.1"
+    "mocha": "^5.0.5"
   },
   "directories": {
     "test": "tests"
-  },
-  "scripts": {
-    "test": "mocha \"tests/*_test.js\""
   },
   "repository": "https://github.com/vigorousnorth/news-equity-analytics.git",
   "keywords": [
