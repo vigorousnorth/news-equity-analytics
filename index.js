@@ -27,20 +27,12 @@ app.get('/nyc_json', function (request, response) {
 	  ssl: true,
 	});
 
-	// LOCAL CONNECTION
-	// var db = new Client({
-	// 	host: process.env.DB_HOST,
-	//   user: process.env.DB_USER,
-	//   password: process.env.DB_PASS,
-	//   database: process.env.DB
-	// });
-
 	db.connect();
 
   db.query(nycQuery)
 		.then( res => {
 
-			response.json(res.rows);
+			response.json(res);
 						
 			db.end();
 
