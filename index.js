@@ -32,7 +32,7 @@ app.get('/nyc_json', function (request, response) {
   db.query(nycQuery)
 		.then( res => {
 
-			response.json(res);
+			response.json(res.rows[0].array_to_json);
 						
 			db.end();
 
