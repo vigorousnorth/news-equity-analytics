@@ -6,7 +6,21 @@ const PORT = process.env.PORT || 5000
 
 const app = express();
 
-var nycQuery = "select array_to_json(array_agg(row_to_json(t)))	from ( 	  select place_name, geocode,	    (	      select array_to_json(array_agg(row_to_json(d)))	      from (	        select count(place_mentions.place_id) as mentions_count, articles.url	        FROM place_mentions	        INNER JOIN articles on articles.id = place_mentions.article_id	        where place_mentions.place_id = places.id 																				GROUP BY articles.url, articles.headline					      ) d	    ) as place_mentions	  from places	  where market_id = 2	) t";
+var nycQuery = "select array_to_json(array_agg(row_to_json(t)))
+from (
+  select place_name, geocode,
+    (
+      select array_to_json(array_agg(row_to_json(d)))
+      from (
+        select count(place_mentions.place_id) as mentions_count, articles.url, articles.feed_id
+        FROM place_mentions 
+        INNER JOIN articles on articles.id = place_mentions.article_id
+          WHERE place_mentions.place_id = places.id 
+  		  GROUP BY articles.url, articles.headline, articles.feed_id			
+      ) d
+    ) as place_mentions
+  from places
+  where market_id = 2";
 
 app.set('port', (process.env.PORT || 5000));
 
