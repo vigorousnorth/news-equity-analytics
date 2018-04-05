@@ -20,7 +20,8 @@ from (
       ) d
     ) as place_mentions
   from places
-  where market_id = 2`;
+  where market_id = 2
+) t`;
 
 app.set('port', (process.env.PORT || 5000));
 
