@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5000
 
 const app = express();
 
-var nycQuery = "select array_to_json(array_agg(row_to_json(t)))
+var nycQuery = `"select array_to_json(array_agg(row_to_json(t)))
 from (
   select place_name, geocode,
     (
@@ -20,7 +20,7 @@ from (
       ) d
     ) as place_mentions
   from places
-  where market_id = 2";
+  where market_id = 2"`;
 
 app.set('port', (process.env.PORT || 5000));
 
