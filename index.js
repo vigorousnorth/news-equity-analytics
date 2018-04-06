@@ -17,7 +17,7 @@ from (
         FROM place_mentions
         INNER JOIN articles on articles.id = place_mentions.article_id
         where place_mentions.place_id = places.id 
-        GROUP BY articles.url, articles.headline, articles.feed_id    
+        GROUP BY articles.url, articles.headline, articles.date, articles.feed_id    
       ) d
     ) as place_mentions
   from places 
