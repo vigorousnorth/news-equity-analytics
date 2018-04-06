@@ -13,7 +13,7 @@ from (
       /* the inner query collects an array of article mentions, grouped by article, associated with each place/topic */
       select array_to_json(array_agg(row_to_json(d)))
       from (
-        select count(place_mentions.place_id) as mentions_count, articles.url, articles.headline, articles.feed_id
+        select count(place_mentions.place_id) as mentions_count, articles.url, articles.headline, articles.date, articles.feed_id
         FROM place_mentions
         INNER JOIN articles on articles.id = place_mentions.article_id
         where place_mentions.place_id = places.id 
