@@ -41,7 +41,7 @@ const newspapers = [
 ]
 
 Promise.all([
-    d3.json('nyctopo.json'),
+    d3.json('../topojson/nyctopo.json'),
     d3.json('nycplacementions.json')
   ]).then( ([nyc, mentions]) => {
   

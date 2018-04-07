@@ -39,6 +39,7 @@ app.get('/', function(request, response) {
 });
 
 app.get('/nyc_json', function (request, response) {
+  
   //	HOSTED CONNECTION
  	 const db = new Client({
 	  connectionString: process.env.DATABASE_URL,
