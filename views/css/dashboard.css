@@ -1,0 +1,9 @@
+svg text {font-family: sans-serif; font-size: 12px}
+
+div {margin: 1em 0px; font-family: sans-serif; font-size: 12px}
+
+ul li {line-height: 1.5em;}
+
+div#list {width: 90%; margin: 2em 5%; padding: 10px; background-color: #eee; border: 1px solid #222; position: absolute;}
+
+span#hidebutton {position: absolute; right: 10px; text-align: right; text-decoration: underline; cursor: pointer;}
