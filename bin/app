@@ -1,5 +1,0 @@
-#! /app/.heroku/node/bin/node
-
-const app = require('./app');
-
-process.exit();
