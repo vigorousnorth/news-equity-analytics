@@ -34,10 +34,9 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-const day = "April 12, 2018";
 
 app.get('/', function(request, response) {
-  response.render('pages/index', day)
+  response.render('pages/index', {day: "April 12, 2018"})
 });
 
 app.get('/nyc_json', function (request, response) {
