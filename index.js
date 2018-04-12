@@ -34,10 +34,10 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-const date = "April 12, 2018";
+const day = "April 12, 2018";
 
 app.get('/', function(request, response) {
-  response.render('pages/index', date)
+  response.render('pages/index', day)
 });
 
 app.get('/nyc_json', function (request, response) {
