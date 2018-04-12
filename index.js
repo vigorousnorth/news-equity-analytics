@@ -36,7 +36,7 @@ app.set('view engine', 'ejs');
 
 
 app.get('/', function(request, response) {
-  response.render('pages/index', {day: "April 12, 2018"})
+  response.render('pages/index', { day : "April 12, 2018" })
 });
 
 app.get('/nyc_json', function (request, response) {
