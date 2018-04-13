@@ -19,7 +19,7 @@ SET row_security = off;
 --
 -- TOC entry 2483 (class 1262 OID 12558)
 -- Dependencies: 2482
--- Name: postgres; Type: COMMENT; Schema: -; Owner: cmilneil
+-- Name: postgres; Type: COMMENT; Schema: -;
 --
 
 COMMENT ON DATABASE postgres IS 'default administrative connection database';
@@ -27,7 +27,7 @@ COMMENT ON DATABASE postgres IS 'default administrative connection database';
 
 --
 -- TOC entry 1 (class 3079 OID 12544)
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; 
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
@@ -36,7 +36,7 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 --
 -- TOC entry 2485 (class 0 OID 0)
 -- Dependencies: 1
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -;
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -50,7 +50,7 @@ SET default_with_oids = false;
 
 --
 -- TOC entry 206 (class 1259 OID 16458)
--- Name: articles; Type: TABLE; Schema: public; Owner: cmilneil
+-- Name: articles; Type: TABLE; Schema: public;
 --
 
 CREATE TABLE articles (
@@ -66,11 +66,10 @@ CREATE TABLE articles (
 );
 
 
-ALTER TABLE articles OWNER TO cmilneil;
 
 --
 -- TOC entry 205 (class 1259 OID 16456)
--- Name: articles_id_seq; Type: SEQUENCE; Schema: public; Owner: cmilneil
+-- Name: articles_id_seq; Type: SEQUENCE; Schema: public; 
 --
 
 CREATE SEQUENCE articles_id_seq
@@ -82,12 +81,10 @@ CREATE SEQUENCE articles_id_seq
     CACHE 1;
 
 
-ALTER TABLE articles_id_seq OWNER TO cmilneil;
-
 --
 -- TOC entry 2486 (class 0 OID 0)
 -- Dependencies: 205
--- Name: articles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cmilneil
+-- Name: articles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; 
 --
 
 ALTER SEQUENCE articles_id_seq OWNED BY articles.id;
@@ -95,7 +92,7 @@ ALTER SEQUENCE articles_id_seq OWNED BY articles.id;
 
 --
 -- TOC entry 204 (class 1259 OID 16442)
--- Name: feeds; Type: TABLE; Schema: public; Owner: cmilneil
+-- Name: feeds; Type: TABLE; Schema: public; 
 --
 
 CREATE TABLE feeds (
@@ -111,11 +108,9 @@ CREATE TABLE feeds (
 );
 
 
-ALTER TABLE feeds OWNER TO cmilneil;
-
 --
 -- TOC entry 203 (class 1259 OID 16440)
--- Name: feeds_id_seq; Type: SEQUENCE; Schema: public; Owner: cmilneil
+-- Name: feeds_id_seq; Type: SEQUENCE; Schema: public; 
 --
 
 CREATE SEQUENCE feeds_id_seq
@@ -127,12 +122,11 @@ CREATE SEQUENCE feeds_id_seq
     CACHE 1;
 
 
-ALTER TABLE feeds_id_seq OWNER TO cmilneil;
 
 --
 -- TOC entry 2487 (class 0 OID 0)
 -- Dependencies: 203
--- Name: feeds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cmilneil
+-- Name: feeds_id_seq; Type: SEQUENCE OWNED BY; Schema: public; 
 --
 
 ALTER SEQUENCE feeds_id_seq OWNED BY feeds.id;
@@ -140,7 +134,7 @@ ALTER SEQUENCE feeds_id_seq OWNED BY feeds.id;
 
 --
 -- TOC entry 197 (class 1259 OID 16386)
--- Name: media_markets; Type: TABLE; Schema: public; Owner: cmilneil
+-- Name: media_markets; Type: TABLE; Schema: public;
 --
 
 CREATE TABLE media_markets (
@@ -149,11 +143,10 @@ CREATE TABLE media_markets (
 );
 
 
-ALTER TABLE media_markets OWNER TO cmilneil;
 
 --
 -- TOC entry 196 (class 1259 OID 16384)
--- Name: media_markets_id_seq; Type: SEQUENCE; Schema: public; Owner: cmilneil
+-- Name: media_markets_id_seq; Type: SEQUENCE; Schema: public;
 --
 
 CREATE SEQUENCE media_markets_id_seq
@@ -165,12 +158,10 @@ CREATE SEQUENCE media_markets_id_seq
     CACHE 1;
 
 
-ALTER TABLE media_markets_id_seq OWNER TO cmilneil;
-
 --
 -- TOC entry 2488 (class 0 OID 0)
 -- Dependencies: 196
--- Name: media_markets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cmilneil
+-- Name: media_markets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; 
 --
 
 ALTER SEQUENCE media_markets_id_seq OWNED BY media_markets.id;
@@ -178,7 +169,7 @@ ALTER SEQUENCE media_markets_id_seq OWNED BY media_markets.id;
 
 --
 -- TOC entry 208 (class 1259 OID 16476)
--- Name: place_mentions; Type: TABLE; Schema: public; Owner: cmilneil
+-- Name: place_mentions; Type: TABLE; Schema: public; 
 --
 
 CREATE TABLE place_mentions (
@@ -190,11 +181,10 @@ CREATE TABLE place_mentions (
 );
 
 
-ALTER TABLE place_mentions OWNER TO cmilneil;
 
 --
 -- TOC entry 207 (class 1259 OID 16474)
--- Name: place_mentions_id_seq; Type: SEQUENCE; Schema: public; Owner: cmilneil
+-- Name: place_mentions_id_seq; Type: SEQUENCE; Schema: public;
 --
 
 CREATE SEQUENCE place_mentions_id_seq
@@ -206,12 +196,11 @@ CREATE SEQUENCE place_mentions_id_seq
     CACHE 1;
 
 
-ALTER TABLE place_mentions_id_seq OWNER TO cmilneil;
 
 --
 -- TOC entry 2489 (class 0 OID 0)
 -- Dependencies: 207
--- Name: place_mentions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cmilneil
+-- Name: place_mentions_id_seq; Type: SEQUENCE OWNED BY; Schema: public;
 --
 
 ALTER SEQUENCE place_mentions_id_seq OWNED BY place_mentions.id;
@@ -219,7 +208,7 @@ ALTER SEQUENCE place_mentions_id_seq OWNED BY place_mentions.id;
 
 --
 -- TOC entry 199 (class 1259 OID 16397)
--- Name: places; Type: TABLE; Schema: public; Owner: cmilneil
+-- Name: places; Type: TABLE; Schema: public; 
 --
 
 CREATE TABLE places (
@@ -233,11 +222,10 @@ CREATE TABLE places (
 );
 
 
-ALTER TABLE places OWNER TO cmilneil;
 
 --
 -- TOC entry 198 (class 1259 OID 16395)
--- Name: places_id_seq; Type: SEQUENCE; Schema: public; Owner: cmilneil
+-- Name: places_id_seq; Type: SEQUENCE; Schema: public; 
 --
 
 CREATE SEQUENCE places_id_seq
@@ -249,12 +237,11 @@ CREATE SEQUENCE places_id_seq
     CACHE 1;
 
 
-ALTER TABLE places_id_seq OWNER TO cmilneil;
 
 --
 -- TOC entry 2490 (class 0 OID 0)
 -- Dependencies: 198
--- Name: places_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cmilneil
+-- Name: places_id_seq; Type: SEQUENCE OWNED BY; Schema: public; 
 --
 
 ALTER SEQUENCE places_id_seq OWNED BY places.id;
@@ -262,7 +249,7 @@ ALTER SEQUENCE places_id_seq OWNED BY places.id;
 
 --
 -- TOC entry 202 (class 1259 OID 16426)
--- Name: publishers; Type: TABLE; Schema: public; Owner: cmilneil
+-- Name: publishers; Type: TABLE; Schema: public; 
 --
 
 CREATE TABLE publishers (
@@ -272,11 +259,9 @@ CREATE TABLE publishers (
 );
 
 
-ALTER TABLE publishers OWNER TO cmilneil;
-
 --
 -- TOC entry 201 (class 1259 OID 16424)
--- Name: publishers_id_seq; Type: SEQUENCE; Schema: public; Owner: cmilneil
+-- Name: publishers_id_seq; Type: SEQUENCE; Schema: public; 
 --
 
 CREATE SEQUENCE publishers_id_seq
@@ -287,21 +272,17 @@ CREATE SEQUENCE publishers_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER TABLE publishers_id_seq OWNER TO cmilneil;
-
 --
 -- TOC entry 2491 (class 0 OID 0)
 -- Dependencies: 201
--- Name: publishers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cmilneil
---
+-- Name: publishers_id_seq; Type: SEQUENCE OWNED BY; Schema: public;
 
 ALTER SEQUENCE publishers_id_seq OWNED BY publishers.id;
 
 
 --
 -- TOC entry 200 (class 1259 OID 16411)
--- Name: region_relations; Type: TABLE; Schema: public; Owner: cmilneil
+-- Name: region_relations; Type: TABLE; Schema: public; 
 --
 
 CREATE TABLE region_relations (
@@ -310,11 +291,9 @@ CREATE TABLE region_relations (
 );
 
 
-ALTER TABLE region_relations OWNER TO cmilneil;
-
 --
 -- TOC entry 2333 (class 2604 OID 16461)
--- Name: articles id; Type: DEFAULT; Schema: public; Owner: cmilneil
+-- Name: articles id; Type: DEFAULT; Schema: public; 
 --
 
 ALTER TABLE ONLY articles ALTER COLUMN id SET DEFAULT nextval('articles_id_seq'::regclass);
@@ -322,7 +301,7 @@ ALTER TABLE ONLY articles ALTER COLUMN id SET DEFAULT nextval('articles_id_seq':
 
 --
 -- TOC entry 2332 (class 2604 OID 16445)
--- Name: feeds id; Type: DEFAULT; Schema: public; Owner: cmilneil
+-- Name: feeds id; Type: DEFAULT; Schema: public; 
 --
 
 ALTER TABLE ONLY feeds ALTER COLUMN id SET DEFAULT nextval('feeds_id_seq'::regclass);
@@ -330,7 +309,7 @@ ALTER TABLE ONLY feeds ALTER COLUMN id SET DEFAULT nextval('feeds_id_seq'::regcl
 
 --
 -- TOC entry 2329 (class 2604 OID 16389)
--- Name: media_markets id; Type: DEFAULT; Schema: public; Owner: cmilneil
+-- Name: media_markets id; Type: DEFAULT; Schema: public; 
 --
 
 ALTER TABLE ONLY media_markets ALTER COLUMN id SET DEFAULT nextval('media_markets_id_seq'::regclass);
@@ -338,7 +317,7 @@ ALTER TABLE ONLY media_markets ALTER COLUMN id SET DEFAULT nextval('media_market
 
 --
 -- TOC entry 2334 (class 2604 OID 16479)
--- Name: place_mentions id; Type: DEFAULT; Schema: public; Owner: cmilneil
+-- Name: place_mentions id; Type: DEFAULT; Schema: public; 
 --
 
 ALTER TABLE ONLY place_mentions ALTER COLUMN id SET DEFAULT nextval('place_mentions_id_seq'::regclass);
@@ -346,7 +325,7 @@ ALTER TABLE ONLY place_mentions ALTER COLUMN id SET DEFAULT nextval('place_menti
 
 --
 -- TOC entry 2330 (class 2604 OID 16400)
--- Name: places id; Type: DEFAULT; Schema: public; Owner: cmilneil
+-- Name: places id; Type: DEFAULT; Schema: public; 
 --
 
 ALTER TABLE ONLY places ALTER COLUMN id SET DEFAULT nextval('places_id_seq'::regclass);
@@ -354,7 +333,7 @@ ALTER TABLE ONLY places ALTER COLUMN id SET DEFAULT nextval('places_id_seq'::reg
 
 --
 -- TOC entry 2331 (class 2604 OID 16429)
--- Name: publishers id; Type: DEFAULT; Schema: public; Owner: cmilneil
+-- Name: publishers id; Type: DEFAULT; Schema: public; 
 --
 
 ALTER TABLE ONLY publishers ALTER COLUMN id SET DEFAULT nextval('publishers_id_seq'::regclass);
@@ -362,7 +341,7 @@ ALTER TABLE ONLY publishers ALTER COLUMN id SET DEFAULT nextval('publishers_id_s
 
 --
 -- TOC entry 2344 (class 2606 OID 16466)
--- Name: articles articles_pkey; Type: CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: articles articles_pkey; Type: CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY articles
@@ -371,7 +350,7 @@ ALTER TABLE ONLY articles
 
 --
 -- TOC entry 2346 (class 2606 OID 16468)
--- Name: articles articles_url_key; Type: CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: articles articles_url_key; Type: CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY articles
@@ -380,7 +359,7 @@ ALTER TABLE ONLY articles
 
 --
 -- TOC entry 2342 (class 2606 OID 16450)
--- Name: feeds feeds_pkey; Type: CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: feeds feeds_pkey; Type: CONSTRAINT; Schema: public;
 --
 
 ALTER TABLE ONLY feeds
@@ -389,7 +368,7 @@ ALTER TABLE ONLY feeds
 
 --
 -- TOC entry 2336 (class 2606 OID 16394)
--- Name: media_markets media_markets_pkey; Type: CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: media_markets media_markets_pkey; Type: CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY media_markets
@@ -398,7 +377,7 @@ ALTER TABLE ONLY media_markets
 
 --
 -- TOC entry 2348 (class 2606 OID 16484)
--- Name: place_mentions place_mentions_pkey; Type: CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: place_mentions place_mentions_pkey; Type: CONSTRAINT; Schema: public;
 --
 
 ALTER TABLE ONLY place_mentions
@@ -407,7 +386,7 @@ ALTER TABLE ONLY place_mentions
 
 --
 -- TOC entry 2338 (class 2606 OID 16405)
--- Name: places places_pkey; Type: CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: places places_pkey; Type: CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY places
@@ -416,8 +395,7 @@ ALTER TABLE ONLY places
 
 --
 -- TOC entry 2340 (class 2606 OID 16434)
--- Name: publishers publishers_pkey; Type: CONSTRAINT; Schema: public; Owner: cmilneil
---
+-- Name: publishers publishers_pkey; Type: CONSTRAINT; Schema: public; 
 
 ALTER TABLE ONLY publishers
     ADD CONSTRAINT publishers_pkey PRIMARY KEY (id);
@@ -425,7 +403,7 @@ ALTER TABLE ONLY publishers
 
 --
 -- TOC entry 2354 (class 2606 OID 16469)
--- Name: articles articles_feed_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: articles articles_feed_id_fkey; Type: FK CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY articles
@@ -434,7 +412,7 @@ ALTER TABLE ONLY articles
 
 --
 -- TOC entry 2353 (class 2606 OID 16451)
--- Name: feeds feeds_publisher_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: feeds feeds_publisher_id_fkey; Type: FK CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY feeds
@@ -443,8 +421,7 @@ ALTER TABLE ONLY feeds
 
 --
 -- TOC entry 2355 (class 2606 OID 16485)
--- Name: place_mentions place_mentions_article_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
---
+-- Name: place_mentions place_mentions_article_id_fkey; Type: FK CONSTRAINT; Schema: public; 
 
 ALTER TABLE ONLY place_mentions
     ADD CONSTRAINT place_mentions_article_id_fkey FOREIGN KEY (article_id) REFERENCES articles(id);
@@ -452,7 +429,7 @@ ALTER TABLE ONLY place_mentions
 
 --
 -- TOC entry 2356 (class 2606 OID 16490)
--- Name: place_mentions place_mentions_place_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: place_mentions place_mentions_place_id_fkey; Type: FK CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY place_mentions
@@ -461,7 +438,7 @@ ALTER TABLE ONLY place_mentions
 
 --
 -- TOC entry 2349 (class 2606 OID 16406)
--- Name: places places_market_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: places places_market_id_fkey; Type: FK CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY places
@@ -470,8 +447,8 @@ ALTER TABLE ONLY places
 
 --
 -- TOC entry 2352 (class 2606 OID 16435)
--- Name: publishers publishers_market_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
---
+-- Name: publishers publishers_market_id_fkey; Type: FK CONSTRAINT; Schema: public; 
+
 
 ALTER TABLE ONLY publishers
     ADD CONSTRAINT publishers_market_id_fkey FOREIGN KEY (market_id) REFERENCES media_markets(id);
@@ -479,7 +456,7 @@ ALTER TABLE ONLY publishers
 
 --
 -- TOC entry 2351 (class 2606 OID 16419)
--- Name: region_relations region_relations_parent_region_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: region_relations region_relations_parent_region_id_fkey; Type: FK CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY region_relations
@@ -488,7 +465,7 @@ ALTER TABLE ONLY region_relations
 
 --
 -- TOC entry 2350 (class 2606 OID 16414)
--- Name: region_relations region_relations_subregion_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cmilneil
+-- Name: region_relations region_relations_subregion_id_fkey; Type: FK CONSTRAINT; Schema: public; 
 --
 
 ALTER TABLE ONLY region_relations
