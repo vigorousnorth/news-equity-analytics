@@ -34,11 +34,13 @@ app.use(express.static(__dirname + '/public'));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
+
 app.get('/', function(request, response) {
-  response.render('pages/index')
+  response.render('pages/index', { 'day' : new Date().toString().substr(0,10) })
 });
 
 app.get('/nyc_json', function (request, response) {
+  
   //	HOSTED CONNECTION
  	 const db = new Client({
 	  connectionString: process.env.DATABASE_URL,

@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
-<head>
 
-</head>
+<body>
 
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="https://d3js.org/topojson.v1.min.js"></script>
@@ -14,19 +13,20 @@
 <script src="../js/dashboard.js"></script>
 
 
-<body>
-  <div id="list" style="display: none;">
-    <span id='hidebutton'>Close</span>
-    <h2 id="neighborhood_title"></h2>
-    <h5 id="neighborhood_info"></h5>
-    <p>Recent stories:</p>
-    <ul id="storylist">
-    </ul>
-  </div>
-  <div id="barchart_most"></div>
-  <hr/>
-  <div id="map">&nbsp;</div>
-</body>
+<h1>Estimated newsroom coverage of NYC neighborhoods</h1>
+<h5>From March 1 to <%= day %> </h5>
+<p>Note: these results are estimates based on automated text searches of newspaper articles. <a href="https://github.com/vigorousnorth/news-equity-analytics">Find our methodology here.</a>
+<div id="list" style="display: none;">
+  <span id='hidebutton'>Close</span>
+  <h2 id="neighborhood_title"></h2>
+  <h5 id="neighborhood_info"></h5>
+  <p>Recent stories:</p>
+  <ul id="storylist">
+  </ul>
+</div>
+<div id="barchart_most"></div>
+<hr/>
+<div id="map">&nbsp;</div>
 
 </body>
 </html>
