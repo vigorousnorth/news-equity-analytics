@@ -6,7 +6,7 @@ This is a Node.js package to parse a news organization's RSS feeds and analyze i
 Results are saved in a PostgreSQL database described by the `database.sql` file. This code can be run locally, or scheduled to run daily on a hosted Node.js server.  
 
 
-## LOCAL INSTALLATION ##
+## LOCAL INSTALLATION 
 
 This app can be run locally. To do so, you'll need [have Node.js and npm installed locally](https://nodejs.org/en/download/), plus [a local PostgreSQL database](https://medium.freecodecamp.org/how-to-get-started-with-postgresql-9d3bc1dd1b11). 
 
@@ -17,24 +17,24 @@ $ git clone https://github.com//vigorousnorth/news-equity-analytics.git
 $ cd news-equity-analytics
 ```
 
-###Setting up your database###
+### Setting up your database
 
 This software uses PostgreSQL database to save records of when and where specific topics are mentioned in news feeds of interest. The database is described by the `database.sql` file, which can be imported from the command line to set up all the nececssary tables. Here's a quick, plain-english guide to the most important tables we're setting up:
 
-######feeds######
+###### feeds
 The `feeds` table includes information about the RSS feeds we're scraping, including URLs, a publisher ID that links to the `publishers` table, and XML information.
 
-######places######
+###### places
 The `places` table describes the topics we're searching for in each news story. Generally these are names of cities, towns or neighborhoods, but this table could also be used to include lists of people, sports teams or other topics of interest. 
 
 Each entry includes a column for potential aliases and disambiguation columns (`not_followed_by` and `not_preceded_by`) to filter out unwanted matches (for instance, to find mentions of "Brooklyn" but not "Brooklyn Nets" or "Brooklyn Bridge, the comma-separated string "Nets,Bridge" would be included in the `not_followed_by` column for Brooklyn).
 
-######articles#######
+###### articles
 A table of individual news articles, including columns for the `headline`, `date`, `byline` and `url`. The `feed_id` column references the corresponding id from the `feeds` table.
 
 The `url` column performs as a unique key, so that duplicate values of one article at the same url are not allowed.
 
-######place_mentions#######
+###### place_mentions
 This table is what we're most interested in: it contains one row for every time a topic in the `places` table is mentioned in an article from the `articles` table – basically a table of search results.
 
 It includes 4 columns besides the unique `id` for each row: an `article_id` column that references the corresponding article from the `article` table; a `relevance_score` column, which roughly measures how prominent the mention is (a score of 100 means that the mention is included in the headline; a score of 1 means that the mention is in the very last sentence of the article); a `context` column that includes the sentence where the mention was found; and a `place_id` column that references the `places` table. 
