@@ -1,6 +1,6 @@
 
 const expect = require('chai').expect;
-const queryForFeeds = require('../queryForFeeds');
+const queryForFeeds = require('../lib/queryForFeeds');
 
 
 describe('queryForFeeds()', function() {

@@ -1,6 +1,6 @@
 
 const expect = require('chai').expect;
-const searchMod = require('../itemsearch');
+const searchMod = require('../lib/itemsearch');
 
 
 const itemsearch = searchMod.itemsearch;
@@ -39,10 +39,10 @@ describe('searchtopics()', function() {
 			},
 		];
 
-		const searchstring = "New York's Manhattan Beach neighborhood is located at the southern edge of Brooklyn." +
-			"Besides Fleurent, the roster features Alden Weller (Falmouth), who played in Battery Park," + 
-			" Jason Harmon of Brooklyn Heights, and Ian Rodden (of East Elmhurst)." + 
-			" The Brooklyn Heights Promenade has stunning views of the harbor and Brooklyn Bridge.";
+		const searchstring = "New York's Manhattan Beach neighborhood is located at the southern edge of Brooklyn." 
+			+ " Besides Fleurent, the roster features Alden Weller (Falmouth), who played in Battery Park," 
+			+ " Jason Harmon of Brooklyn Heights, and Ian Rodden (of East Elmhurst)." 
+			+ " The Brooklyn Heights Promenade has stunning views of the harbor and Brooklyn Bridge.";
 
 		const expectedResults = [638, 520, 557, 557, 558 ];
 		// expected results are returned in the order in which they're listed in the topics array, as many times as they're found in the search string.
@@ -60,9 +60,9 @@ describe('searchtopics()', function() {
 	  			.qualifiedFind(str, v.not_preceded_by, v.not_followed_by, function(error, results) {
 	  			
 		  			if (error) {console.log('qualifiedFind ' + error); }
-
+		  			console.log(results);
 		  			if (results[0]) { 
-		  				results.map( val => { console.log(val); console.log(v.id); val.place_id = v.id; return val; });
+		  				results.map( val => { console.log(val); console.log('QF success:' + v.id); val.place_id = v.id; return val; });
 		  				mentions.push.apply(mentions, results);
 		  			}
 
@@ -73,7 +73,7 @@ describe('searchtopics()', function() {
 	  		itemsearch(searchstring).easyFind(str, function(error, results) {
 	  			if (error) { console.log('easyFind ' + error); }
 	  			else if (results[0]) { 
-	  				results.map( val => { console.log(val); console.log(v.id); val.place_id = v.id; return val; });
+	  				results.map( val => { console.log(val); console.log('EF success:' + v.id); val.place_id = v.id; return val; });
 	  				mentions.push.apply(mentions, results);
 	  			}
 	  		});
@@ -83,6 +83,7 @@ describe('searchtopics()', function() {
 	  var towns = mentions.map( v => { return v.place_id	; } );
 	  
 	  console.log(towns);
+
 
 		// 3. ASSERT
 		for (var i = towns.length - 1; i >= 0; i--) {
