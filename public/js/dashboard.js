@@ -21,12 +21,12 @@ var projection = d3.geoAlbers()
 var path = d3.geoPath()
   .projection(projection);
 
-var color = d3.scaleLinear().domain([0,0.01,0.1,0.5]).range(['#ddd','#fdcc8a','#fc8d59','#88419d']);
+var color = d3.scaleLinear().domain([0,0.05,0.5,1.0]).range(['#ddd','#fdcc8a','#fc8d59','#88419d']);
 
 var bars_n = Math.ceil((totwidth - margin.left - margin.right) / 70);
 
 var keyscale = d3.scaleLinear()
-  .domain([0,0.4])
+  .domain([0,1.0])
   .range([0,120]);
 
 var keyAxis = d3.axisBottom()
