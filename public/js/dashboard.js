@@ -179,7 +179,7 @@ Promise.all([
     .align(0.05);
 
   y = d3.scaleLinear()
-    .domain([0,0.6])
+    .domain([0, d3.max(mentions, d => +d.mentionsPerK ) ])
     .range([barheight - margin.bottom, margin.top])
 
   var xAxis = d3.axisBottom(most_x);
