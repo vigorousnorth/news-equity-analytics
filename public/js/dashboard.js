@@ -42,7 +42,7 @@ const newspapers = [
 
 Promise.all([
     d3.json('../topojson/nyctopo.json'),
-    d3.json('../js/nycplacementions.json')
+    d3.json('../js/nycplacementions_01.22.2019.json')
   ]).then( ([nyc, mentions]) => {
   
   totwidth = d3.select('body').node().getBoundingClientRect().width - 10;
