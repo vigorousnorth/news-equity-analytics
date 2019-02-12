@@ -1,6 +1,7 @@
 
 const expect = require('chai').expect;
-const searchMod = require('../itemsearch');
+const searchMod = require('../lib/itemSearch');
+const isEquivalent = require('../lib/isEquivalent');
 
 
 const parseTopics = searchMod.parseTopics;
@@ -64,20 +65,6 @@ describe('parseTopics()', function() {
 			},
 		];
 			
-		function isEquivalent(a, b) {
-			// Create arrays of property names
-			var aProps = Object.getOwnPropertyNames(a);
-			var bProps = Object.getOwnPropertyNames(b);
-
-			if (aProps.length != bProps.length) { return false; }
-
-			for (var i = 0; i < aProps.length; i++) {
-				var propName = aProps[i]; 
-				if (a[propName] !== b[propName]) { return false; }
-			}
-
-			return true;
-		}
 
 		// 2. ACT
 		var parsedTopicMarkets = parseTopics(topics)

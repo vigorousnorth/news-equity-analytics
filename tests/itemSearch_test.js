@@ -1,6 +1,6 @@
 
 const expect = require('chai').expect;
-const searchMod = require('../itemsearch');
+const searchMod = require('../lib/itemsearch');
 
 
 const itemsearch = searchMod.itemsearch;
@@ -62,7 +62,7 @@ describe('searchtopics()', function() {
 		  			if (error) {console.log('qualifiedFind ' + error); }
 
 		  			if (results[0]) { 
-		  				results.map( val => { console.log(val); console.log(v.id); val.place_id = v.id; return val; });
+		  				results.map( val => { val.place_id = v.id; return val; });
 		  				mentions.push.apply(mentions, results);
 		  			}
 
@@ -73,7 +73,7 @@ describe('searchtopics()', function() {
 	  		itemsearch(searchstring).easyFind(str, function(error, results) {
 	  			if (error) { console.log('easyFind ' + error); }
 	  			else if (results[0]) { 
-	  				results.map( val => { console.log(val); console.log(v.id); val.place_id = v.id; return val; });
+	  				results.map( val => { val.place_id = v.id; return val; });
 	  				mentions.push.apply(mentions, results);
 	  			}
 	  		});
@@ -82,7 +82,7 @@ describe('searchtopics()', function() {
 
 	  var towns = mentions.map( v => { return v.place_id	; } );
 	  
-	  console.log(towns);
+	  // console.log(towns);
 
 		// 3. ASSERT
 		for (var i = towns.length - 1; i >= 0; i--) {
